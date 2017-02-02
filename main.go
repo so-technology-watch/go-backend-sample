@@ -10,7 +10,6 @@ import (
 )
 
 func main() {
-
 	router := mux.NewRouter().StrictSlash(true)
 	router.HandleFunc("/", HomePage).Methods("GET")
 	router.HandleFunc("/albums", controllers.GetAlbums).Methods("GET")
@@ -27,7 +26,6 @@ func main() {
 	router.HandleFunc("/admin/delete", controllers.DeleteAll).Methods("DELETE")
 
 	config.Error.Println(http.ListenAndServe(":8080", router))
-
 }
 
 func HomePage(w http.ResponseWriter, r *http.Request) {
