@@ -40,7 +40,7 @@ func GetAuthor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	config.LogInfo.Println("Author : ", author)
+	config.LogInfo.Println("Author :", author)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -62,7 +62,7 @@ func UpdateAuthor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	config.LogInfo.Println("Update author : ", author)
+	config.LogInfo.Println("Update author :", author)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -75,7 +75,7 @@ func UpdateAuthor(w http.ResponseWriter, r *http.Request) {
 func AddAuthor(w http.ResponseWriter, r *http.Request) {
 	author := &models.Author{Firstname: r.FormValue("firstname"), Lastname: r.FormValue("lastname")}
 
-	config.LogInfo.Println("Add author : ", author)
+	config.LogInfo.Println("Add author :", author)
 
 	id, err := models.CreateAuthor(author)
 	if err != nil {

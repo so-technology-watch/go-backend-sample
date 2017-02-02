@@ -105,6 +105,10 @@ func GetAlbumsByAuthor(idAuthor string) ([]*Album, error) {
 		}
 	}
 
+	if len(albums) == 0 {
+		return nil, errors.New("No albums !!")
+	}
+
 	return albums, nil
 }
 
@@ -124,7 +128,7 @@ func GetAlbum(id string) (*Album, error) {
 }
 
 func UpdateAlbum(album *Album) (*Album, error) {
-	resultAlbumExist := config.DB.Exists("album:" + album.Id)
+	resultAlbumExist := config.DB.Exists(album.Id)
 	if resultAlbumExist.Err() != nil {
 		return album, resultAlbumExist.Err()
 	} else if resultAlbumExist.Val() == false {
@@ -150,7 +154,7 @@ func UpdateAlbum(album *Album) (*Album, error) {
 		"songs": 	string(songs),
 	}
 
-	result := config.DB.HMSet("album:" + album.Id, mapAlbum)
+	result := config.DB.HMSet(album.Id, mapAlbum)
 	if result.Err() != nil {
 		return album, result.Err()
 	}

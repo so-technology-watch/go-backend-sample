@@ -59,7 +59,7 @@ func GetAlbum(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	config.LogInfo.Println("Album : ", album)
+	config.LogInfo.Println("Album :", album)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -83,7 +83,7 @@ func UpdateAlbum(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	config.LogInfo.Println("Update album : ", album)
+	config.LogInfo.Println("Update album :", album)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -98,7 +98,7 @@ func AddAlbum(w http.ResponseWriter, r *http.Request) {
 	json.Unmarshal([]byte(r.FormValue("songs")), &songs)
 	album := &models.Album{Title: r.FormValue("title"), Description: r.FormValue("description"), IdAuthor: r.FormValue("authorId"), Songs: songs}
 
-	config.LogInfo.Println("Add album : ", album)
+	config.LogInfo.Println("Add album :", album)
 
 	id, err := models.CreateAlbum(album)
 	if err != nil {
