@@ -72,7 +72,7 @@ func UpdateAuthor(w http.ResponseWriter, r *http.Request) {
 }
 
 func AddAuthor(w http.ResponseWriter, r *http.Request) {
-	config.Info.Println("Add author")
+	config.Info.Println("Add author : " + r.FormValue("firstname") + " " + r.FormValue("lastname"))
 
 	author := &models.Author{Firstname: r.FormValue("firstname"), Lastname: r.FormValue("lastname")}
 
