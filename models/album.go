@@ -7,6 +7,9 @@ import (
 	"errors"
 )
 
+const AlbumStr = "album"
+const AlbumIdStr = "album:"
+
 type Album struct {
 	Id            	string 	`json:"id"`
 	Title          	string 	`json:"title"`
@@ -21,7 +24,7 @@ type Song struct {
 }
 
 func CreateAlbum(album *Album) (int64, error) {
-	resultAuthorExist := config.DB.Exists("author:" + album.IdAuthor)
+	resultAuthorExist := config.DB.Exists(AuthorIdStr + album.IdAuthor)
 	if resultAuthorExist.Err() != nil {
 		return -1, resultAuthorExist.Err()
 	} else if resultAuthorExist.Val() == false {
@@ -40,12 +43,12 @@ func CreateAlbum(album *Album) (int64, error) {
 		"songs": 	string(songs),
 	}
 
-	newId := config.DB.Incr("album")
+	newId := config.DB.Incr(AlbumStr)
 	if newId.Err() != nil {
 		return -1, newId.Err()
 	}
 
-	result := config.DB.HMSet("album:" + strconv.FormatInt(newId.Val(), 10), mapAlbum)
+	result := config.DB.HMSet(AlbumIdStr + strconv.FormatInt(newId.Val(), 10), mapAlbum)
 	if result.Err() != nil {
 		return -1, result.Err()
 	}
@@ -56,7 +59,7 @@ func CreateAlbum(album *Album) (int64, error) {
 func GetAlbums() ([]*Album, error) {
 	var albums []*Album
 
-	keys := config.DB.Keys("album:*")
+	keys := config.DB.Keys(AlbumIdStr + "*")
 	if len(keys.Val()) == 0 {
 		return nil, errors.New("No albums !!")
 	}
@@ -79,14 +82,14 @@ func GetAlbums() ([]*Album, error) {
 
 func GetAlbumsByAuthor(idAuthor string) ([]*Album, error) {
 	var albums []*Album
-	resultAuthorExist := config.DB.Exists("author:" + idAuthor)
+	resultAuthorExist := config.DB.Exists(AuthorIdStr + idAuthor)
 	if resultAuthorExist.Err() != nil {
 		return nil, resultAuthorExist.Err()
 	} else if resultAuthorExist.Val() == false {
-		return nil, errors.New(idAuthor + " don't exist !!")
+		return nil, errors.New(AuthorIdStr + idAuthor + " don't exist !!")
 	}
 
-	keys := config.DB.Keys("album:*")
+	keys := config.DB.Keys(AlbumIdStr + "*")
 	if len(keys.Val()) == 0 {
 		return nil, errors.New("No albums !!")
 	}
@@ -113,16 +116,16 @@ func GetAlbumsByAuthor(idAuthor string) ([]*Album, error) {
 }
 
 func GetAlbum(id string) (*Album, error) {
-	result := config.DB.HGetAll("album:" + id)
+	result := config.DB.HGetAll(AlbumIdStr + id)
 	if result.Err() != nil {
 		return nil, result.Err()
 	} else if len(result.Val()) == 0 {
-		return nil, errors.New("album:" + id + " don't exist !!")
+		return nil, errors.New(AlbumIdStr + id + " don't exist !!")
 	}
 
 	var songs []Song
 	json.Unmarshal([]byte(result.Val()["songs"]), &songs)
-	album := &Album{Id: "album:" + id, Title: result.Val()["title"], Description: result.Val()["description"], IdAuthor: result.Val()["idAuthor"], Songs: songs}
+	album := &Album{Id: AlbumIdStr + id, Title: result.Val()["title"], Description: result.Val()["description"], IdAuthor: result.Val()["idAuthor"], Songs: songs}
 
 	return album, nil
 }
@@ -139,7 +142,7 @@ func UpdateAlbum(album *Album) (*Album, error) {
 	if resultAuthorExist.Err() != nil {
 		return album, resultAuthorExist.Err()
 	} else if resultAuthorExist.Val() == false {
-		return album, errors.New("author:" + album.IdAuthor + " don't exist !!")
+		return album, errors.New(AuthorIdStr + album.IdAuthor + " don't exist !!")
 	}
 
 	songs, err := json.Marshal(album.Songs)
@@ -163,18 +166,18 @@ func UpdateAlbum(album *Album) (*Album, error) {
 }
 
 func DeleteAlbum(id string) (bool, error) {
-	result := config.DB.Del("album:" + id)
+	result := config.DB.Del(AlbumIdStr + id)
 	if result.Err() != nil {
 		return false, result.Err()
 	} else if result.Val() == 0 {
-		return false, errors.New("album:" + id + " don't exist !!")
+		return false, errors.New(AlbumIdStr + id + " don't exist !!")
 	}
 
 	return true, nil
 }
 
 func DeleteAllAlbum() (bool, error) {
-	keys := config.DB.Keys("album:*")
+	keys := config.DB.Keys(AlbumIdStr + "*")
 	if len(keys.Val()) == 0 {
 		config.LogWarning.Println("No albums !!")
 	}
@@ -186,7 +189,7 @@ func DeleteAllAlbum() (bool, error) {
 		}
 	}
 
-	resultDelNbAlbum := config.DB.Del("album")
+	resultDelNbAlbum := config.DB.Del(AlbumStr)
 	if resultDelNbAlbum.Err() != nil {
 		return false, resultDelNbAlbum.Err()
 	}

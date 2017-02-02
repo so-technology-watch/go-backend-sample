@@ -27,8 +27,6 @@ func GetAuthors(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-
-
 func GetAuthor(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	authorId := vars["authorId"]
@@ -53,7 +51,7 @@ func GetAuthor(w http.ResponseWriter, r *http.Request) {
 func UpdateAuthor(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
-	author := &models.Author{Id: "author:" + vars["authorId"], Firstname: r.FormValue("firstname"), Lastname: r.FormValue("lastname")}
+	author := &models.Author{Id: models.AuthorIdStr + vars["authorId"], Firstname: r.FormValue("firstname"), Lastname: r.FormValue("lastname")}
 
 	author, err := models.UpdateAuthor(author)
 	if err != nil {

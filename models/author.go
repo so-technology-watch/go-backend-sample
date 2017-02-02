@@ -6,6 +6,9 @@ import (
 	"go-redis-sample/config"
 )
 
+const AuthorStr = "author"
+const AuthorIdStr = "author:"
+
 type Author struct {
 	Id            	string `json:"id"`
 	Firstname     	string `json:"firstname"`
@@ -18,12 +21,12 @@ func CreateAuthor(author *Author) (int64, error) {
 		"lastname": 	author.Lastname,
 	}
 
-	newId := config.DB.Incr("author")
+	newId := config.DB.Incr(AuthorStr)
 	if newId.Err() != nil {
 		return -1, newId.Err()
 	}
 
-	result := config.DB.HMSet("author:" + strconv.FormatInt(newId.Val(), 10), mapAuthor)
+	result := config.DB.HMSet(AuthorIdStr + strconv.FormatInt(newId.Val(), 10), mapAuthor)
 	if result.Err() != nil {
 		return -1, result.Err()
 	}
@@ -34,7 +37,7 @@ func CreateAuthor(author *Author) (int64, error) {
 func GetAuthors() ([]*Author, error) {
 	var authors []*Author
 
-	keys := config.DB.Keys("author:*")
+	keys := config.DB.Keys(AuthorIdStr + "*")
 	if len(keys.Val()) == 0 {
 		return nil, errors.New("No authors !!")
 	}
@@ -53,14 +56,14 @@ func GetAuthors() ([]*Author, error) {
 }
 
 func GetAuthor(id string) (*Author, error) {
-	result := config.DB.HGetAll("author:" + id)
+	result := config.DB.HGetAll(AuthorIdStr + id)
 	if result.Err() != nil {
 		return nil, result.Err()
 	} else if len(result.Val()) == 0 {
-		return nil, errors.New("author:" + id + " don't exist !!")
+		return nil, errors.New(AuthorIdStr + id + " don't exist !!")
 	}
 
-	author := &Author{Id: "author:" + id, Firstname: result.Val()["firstname"], Lastname: result.Val()["lastname"]}
+	author := &Author{Id: AuthorIdStr + id, Firstname: result.Val()["firstname"], Lastname: result.Val()["lastname"]}
 
 	return author, nil
 }
@@ -86,7 +89,7 @@ func UpdateAuthor(author *Author) (*Author, error) {
 }
 
 func DeleteAuthor(id string) (bool, error) {
-	keys := config.DB.Keys("album:*")
+	keys := config.DB.Keys(AlbumIdStr + "*")
 	if len(keys.Val()) == 0 {
 		config.LogWarning.Println("No albums !!")
 	}
@@ -96,7 +99,7 @@ func DeleteAuthor(id string) (bool, error) {
 		if result.Err() != nil {
 			return false, result.Err()
 		} else if len(result.Val()) == 0 {
-			return false, errors.New("author:" + id + " don't exist !!")
+			return false, errors.New(AuthorIdStr + id + " don't exist !!")
 		}
 
 		if id == result.Val()["idAuthor"] {
@@ -109,18 +112,18 @@ func DeleteAuthor(id string) (bool, error) {
 		}
 	}
 
-	resultDelAuthor := config.DB.Del("author:" + id)
+	resultDelAuthor := config.DB.Del(AuthorIdStr + id)
 	if resultDelAuthor.Err() != nil {
 		return false, resultDelAuthor.Err()
 	} else if resultDelAuthor.Val() == 0 {
-		return false, errors.New("author:" + id + " don't exist !!")
+		return false, errors.New(AuthorIdStr + id + " don't exist !!")
 	}
 
 	return true, nil
 }
 
 func DeleteAllAuthor() (bool, error) {
-	keys := config.DB.Keys("author:*")
+	keys := config.DB.Keys(AuthorIdStr + "*")
 	if len(keys.Val()) == 0 {
 		config.LogWarning.Println("No authors !!")
 	}
@@ -132,7 +135,7 @@ func DeleteAllAuthor() (bool, error) {
 		}
 	}
 
-	resultDelNbAuthor := config.DB.Del("author")
+	resultDelNbAuthor := config.DB.Del(AuthorStr)
 	if resultDelNbAuthor.Err() != nil {
 		return false, resultDelNbAuthor.Err()
 	}

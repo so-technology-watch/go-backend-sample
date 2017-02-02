@@ -74,7 +74,7 @@ func UpdateAlbum(w http.ResponseWriter, r *http.Request) {
 
 	var songs []models.Song
 	json.Unmarshal([]byte(r.FormValue("songs")), &songs)
-	album := &models.Album{Id: "album:" + vars["albumId"], Title: r.FormValue("title"), Description: r.FormValue("description"), IdAuthor: r.FormValue("authorId"), Songs: songs}
+	album := &models.Album{Id: models.AlbumIdStr + vars["albumId"], Title: r.FormValue("title"), Description: r.FormValue("description"), IdAuthor: r.FormValue("authorId"), Songs: songs}
 
 	album, err := models.UpdateAlbum(album)
 	if err != nil {
