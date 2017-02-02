@@ -95,7 +95,7 @@ func UpdateAlbum(w http.ResponseWriter, r *http.Request) {
 }
 
 func AddAlbum(w http.ResponseWriter, r *http.Request) {
-	config.Info.Println("Add album : " + r.FormValue("title"))
+	config.Info.Println("Add album : " + r.FormValue("title") + " " + r.FormValue("description") + " "+ r.FormValue("authorId"))
 
 	var songs []models.Song
 	json.Unmarshal([]byte(r.FormValue("songs")), &songs)
