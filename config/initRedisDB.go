@@ -8,6 +8,7 @@ import (
 var DB *redis.Client
 
 func init() {
+	// TODO externaliser config
 	client := redis.NewClient(&redis.Options{
 		Addr:     "localhost:6379",
 		Password: "", // no password set

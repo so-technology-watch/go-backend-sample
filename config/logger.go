@@ -7,13 +7,12 @@ import (
 )
 
 var (
-	Info    *log.Logger
-	Warning *log.Logger
-	Error   *log.Logger
+	LogInfo    *log.Logger
+	LogWarning *log.Logger
+	LogError   *log.Logger
 )
 
 func init() {
-
 	logFile, err := os.OpenFile("app.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatalln("Failed to open log file", os.Stdout, ":", err)
@@ -22,15 +21,15 @@ func init() {
 	multiOut := io.MultiWriter(logFile, os.Stdout)
 	multiErr := io.MultiWriter(logFile, os.Stderr)
 
-	Info = log.New(multiOut,
+	LogInfo = log.New(multiOut,
 		"INFO: ",
 		log.Ldate|log.Ltime|log.Lshortfile)
 
-	Warning = log.New(multiOut,
+	LogWarning = log.New(multiOut,
 		"WARNING: ",
 		log.Ldate|log.Ltime|log.Lshortfile)
 
-	Error = log.New(multiErr,
+	LogError = log.New(multiErr,
 		"ERROR: ",
 		log.Ldate|log.Ltime|log.Lshortfile)
 }

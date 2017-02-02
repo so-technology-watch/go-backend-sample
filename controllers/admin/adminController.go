@@ -1,4 +1,4 @@
-package controllers
+package controllerAdmin
 
 import (
 	"encoding/json"
@@ -8,18 +8,18 @@ import (
 )
 
 func DeleteAll(w http.ResponseWriter, r *http.Request) {
-	config.Info.Println("Suppression de tout les clés")
+	config.LogInfo.Println("Suppression de tout les clés")
 
-	result, err := models.DeleteAllAuthorDB()
+	result, err := models.DeleteAllAuthor()
 	if err != nil {
-		config.Error.Println(err)
+		config.LogError.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	result, err = models.DeleteAllAlbumDB()
+	result, err = models.DeleteAllAlbum()
 	if err != nil {
-		config.Error.Println(err)
+		config.LogError.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -27,7 +27,7 @@ func DeleteAll(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(result); err != nil {
-		config.Error.Println(err)
+		config.LogError.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 }

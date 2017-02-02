@@ -1,4 +1,4 @@
-package controllers
+package controllerAuthor
 
 import (
 	"encoding/json"
@@ -10,11 +10,11 @@ import (
 )
 
 func GetAuthors(w http.ResponseWriter, r *http.Request) {
-	config.Info.Println("List authors")
+	config.LogInfo.Println("List authors")
 
-	authors, err := models.GetAuthorsDB()
+	authors, err := models.GetAuthors()
 	if err != nil {
-		config.Error.Println(err)
+		config.LogError.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -22,7 +22,7 @@ func GetAuthors(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(authors); err != nil {
-		config.Error.Println(err)
+		config.LogError.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 }
@@ -33,52 +33,53 @@ func GetAuthor(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	authorId := vars["authorId"]
 
-	author, err := models.GetAuthorDB(authorId)
+	author, err := models.GetAuthor(authorId)
 	if err != nil {
-		config.Error.Println(err)
+		config.LogError.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	config.Info.Println("Author : ", author)
+	config.LogInfo.Println("Author : ", author)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 	if err = json.NewEncoder(w).Encode(author); err != nil {
-		config.Error.Println(err)
+		config.LogError.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 }
 
 func UpdateAuthor(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	config.Info.Println("Update author : ", vars["authorId"])
 
 	author := &models.Author{Id: "author:" + vars["authorId"], Firstname: r.FormValue("firstname"), Lastname: r.FormValue("lastname")}
 
-	author, err := models.UpdateAuthorDB(author)
+	author, err := models.UpdateAuthor(author)
 	if err != nil {
-		config.Error.Println(err)
+		config.LogError.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
+	config.LogInfo.Println("Update author : ", author)
+
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(author); err != nil {
-		config.Error.Println(err)
+		config.LogError.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 }
 
 func AddAuthor(w http.ResponseWriter, r *http.Request) {
-	config.Info.Println("Add author : " + r.FormValue("firstname") + " " + r.FormValue("lastname"))
-
 	author := &models.Author{Firstname: r.FormValue("firstname"), Lastname: r.FormValue("lastname")}
 
-	id, err := models.CreateAuthorDB(author)
+	config.LogInfo.Println("Add author : ", author)
+
+	id, err := models.CreateAuthor(author)
 	if err != nil {
-		config.Error.Println(err)
+		config.LogError.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -86,7 +87,7 @@ func AddAuthor(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusCreated)
 	if err := json.NewEncoder(w).Encode(id); err != nil {
-		config.Error.Println(err)
+		config.LogError.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 }
@@ -95,11 +96,11 @@ func DeleteAuthor(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	authorId := vars["authorId"]
 
-	config.Info.Println("Delete author : ", authorId)
+	config.LogInfo.Println("Delete author : Id=" + authorId)
 
-	result, err := models.DeleteAuthorDB(authorId)
+	result, err := models.DeleteAuthor(authorId)
 	if err != nil {
-		config.Error.Println(err)
+		config.LogError.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -107,7 +108,7 @@ func DeleteAuthor(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(result); err != nil {
-		config.Error.Println(err)
+		config.LogError.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 }
