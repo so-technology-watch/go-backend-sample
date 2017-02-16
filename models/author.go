@@ -15,6 +15,16 @@ type Author struct {
 	Lastname	string `json:"lastname"`
 }
 
+func (author Author) Valid() (error) {
+	if author.Firstname == "" {
+		return errors.New("Firstname is mandatory")
+	}
+	if author.Lastname == "" {
+		return errors.New("Lastname is mandatory")
+	}
+	return nil
+}
+
 func CreateAuthor(author *Author) (int64, error) {
 	mapAuthor := map[string]string{
 		"firstname":	author.Firstname,

@@ -15,7 +15,7 @@ func GetAuthors(w http.ResponseWriter, r *http.Request) {
 	authors, err := models.GetAuthors()
 	if err != nil {
 		config.LogError.Println(err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 
@@ -34,7 +34,7 @@ func GetAuthor(w http.ResponseWriter, r *http.Request) {
 	author, err := models.GetAuthor(authorId)
 	if err != nil {
 		config.LogError.Println(err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 
@@ -56,7 +56,7 @@ func UpdateAuthor(w http.ResponseWriter, r *http.Request) {
 	author, err := models.UpdateAuthor(author)
 	if err != nil {
 		config.LogError.Println(err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 
@@ -72,13 +72,19 @@ func UpdateAuthor(w http.ResponseWriter, r *http.Request) {
 
 func AddAuthor(w http.ResponseWriter, r *http.Request) {
 	author := &models.Author{Firstname: r.FormValue("firstname"), Lastname: r.FormValue("lastname")}
+	err := author.Valid()
+	if err != nil {
+		config.LogError.Println(err)
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
 
 	config.LogInfo.Println("Add author :", author)
 
 	id, err := models.CreateAuthor(author)
 	if err != nil {
 		config.LogError.Println(err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 
@@ -99,7 +105,7 @@ func DeleteAuthor(w http.ResponseWriter, r *http.Request) {
 	result, err := models.DeleteAuthor(authorId)
 	if err != nil {
 		config.LogError.Println(err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 

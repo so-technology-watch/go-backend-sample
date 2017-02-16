@@ -23,6 +23,36 @@ type Song struct {
 	Title          	string 	`json:"title"`
 }
 
+func (album Album) Valid() (error) {
+	if album.Title == "" {
+		return errors.New("Title is mandatory")
+	}
+	if album.Description == "" {
+		return errors.New("Title is mandatory")
+	}
+	if album.IdAuthor == "" {
+		return errors.New("Title is mandatory")
+	}
+	for i:=0; i<len(album.Songs); i++ {
+		err := album.Songs[i].Valid()
+		if err != nil {
+			return err
+		}
+
+	}
+	return nil
+}
+
+func (song Song) Valid() (error) {
+	if song.Number == "" {
+		return errors.New("Number of song is mandatory")
+	}
+	if song.Title == "" {
+		return errors.New("Title of song is mandatory")
+	}
+	return nil
+}
+
 func CreateAlbum(album *Album) (int64, error) {
 	resultAuthorExist := config.DB.Exists(AuthorIdStr + album.IdAuthor)
 	if resultAuthorExist.Err() != nil {

@@ -36,7 +36,7 @@ func GetAlbumsByAuthor(w http.ResponseWriter, r *http.Request) {
 	albums, err := models.GetAlbumsByAuthor(authorId)
 	if err != nil {
 		config.LogError.Println(err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 
@@ -79,7 +79,7 @@ func UpdateAlbum(w http.ResponseWriter, r *http.Request) {
 	album, err := models.UpdateAlbum(album)
 	if err != nil {
 		config.LogError.Println(err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 
@@ -97,13 +97,19 @@ func AddAlbum(w http.ResponseWriter, r *http.Request) {
 	var songs []models.Song
 	json.Unmarshal([]byte(r.FormValue("songs")), &songs)
 	album := &models.Album{Title: r.FormValue("title"), Description: r.FormValue("description"), IdAuthor: r.FormValue("authorId"), Songs: songs}
+	err := album.Valid()
+	if err != nil {
+		config.LogError.Println(err)
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
 
 	config.LogInfo.Println("Add album :", album)
 
 	id, err := models.CreateAlbum(album)
 	if err != nil {
 		config.LogError.Println(err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
 
