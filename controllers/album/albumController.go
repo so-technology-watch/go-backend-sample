@@ -75,8 +75,14 @@ func UpdateAlbum(w http.ResponseWriter, r *http.Request) {
 	var songs []models.Song
 	json.Unmarshal([]byte(r.FormValue("songs")), &songs)
 	album := &models.Album{Id: models.AlbumIdStr + vars["albumId"], Title: r.FormValue("title"), Description: r.FormValue("description"), IdAuthor: r.FormValue("authorId"), Songs: songs}
+	err := album.Valid()
+	if err != nil {
+		config.LogError.Println(err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
-	album, err := models.UpdateAlbum(album)
+	album, err = models.UpdateAlbum(album)
 	if err != nil {
 		config.LogError.Println(err)
 		http.Error(w, err.Error(), http.StatusNotFound)
@@ -100,7 +106,7 @@ func AddAlbum(w http.ResponseWriter, r *http.Request) {
 	err := album.Valid()
 	if err != nil {
 		config.LogError.Println(err)
-		http.Error(w, err.Error(), http.StatusNotFound)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 

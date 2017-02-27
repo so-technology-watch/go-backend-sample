@@ -4,6 +4,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// Routes for author management
 func Routes(router *mux.Router) {
 	router.HandleFunc("/authors", GetAuthors).Methods("GET")
 	router.HandleFunc("/author/{authorId}", GetAuthor).Methods("GET")

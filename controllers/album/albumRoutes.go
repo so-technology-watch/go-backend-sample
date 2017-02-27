@@ -4,6 +4,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// Routes for album management
 func Routes(router *mux.Router) {
 	router.HandleFunc("/albums", GetAlbums).Methods("GET")
 	router.HandleFunc("/albums/{authorId}", GetAlbumsByAuthor).Methods("GET")

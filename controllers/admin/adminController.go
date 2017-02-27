@@ -7,6 +7,7 @@ import (
 	"go-redis-sample/models"
 )
 
+// Resource to delete all authors and albums with songs
 func DeleteAll(w http.ResponseWriter, r *http.Request) {
 	config.LogInfo.Println("Suppression de tout les clés")
 

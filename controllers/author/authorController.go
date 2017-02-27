@@ -52,8 +52,14 @@ func UpdateAuthor(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
 	author := &models.Author{Id: models.AuthorIdStr + vars["authorId"], Firstname: r.FormValue("firstname"), Lastname: r.FormValue("lastname")}
+	err := author.Valid()
+	if err != nil {
+		config.LogError.Println(err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
-	author, err := models.UpdateAuthor(author)
+	author, err = models.UpdateAuthor(author)
 	if err != nil {
 		config.LogError.Println(err)
 		http.Error(w, err.Error(), http.StatusNotFound)
@@ -75,7 +81,7 @@ func AddAuthor(w http.ResponseWriter, r *http.Request) {
 	err := author.Valid()
 	if err != nil {
 		config.LogError.Println(err)
-		http.Error(w, err.Error(), http.StatusNotFound)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
