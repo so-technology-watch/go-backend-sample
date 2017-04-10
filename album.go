@@ -1,9 +1,8 @@
-package models
+package main
 
 import (
 	"strconv"
 	"encoding/json"
-	"go-redis-sample/config"
 	"errors"
 )
 
@@ -58,9 +57,9 @@ func (song Song) Valid() (error) {
 }
 
 // Create an album in database
-func CreateAlbum(album *Album) (int64, error) {
+func CreateAlbumDB(album *Album) (int64, error) {
 	// Verification if author exist
-	resultAuthorExist := config.DB.Exists(AuthorIdStr + album.IdAuthor)
+	resultAuthorExist := DB.Exists(AuthorIdStr + album.IdAuthor)
 	if resultAuthorExist.Err() != nil {
 		return -1, resultAuthorExist.Err()
 	} else if resultAuthorExist.Val() == false {
@@ -80,13 +79,13 @@ func CreateAlbum(album *Album) (int64, error) {
 	}
 
 	// Increment number of albums
-	newId := config.DB.Incr(AlbumStr)
+	newId := DB.Incr(AlbumStr)
 	if newId.Err() != nil {
 		return -1, newId.Err()
 	}
 
 	// Insert album in database
-	result := config.DB.HMSet(AlbumIdStr + strconv.FormatInt(newId.Val(), 10), mapAlbum)
+	result := DB.HMSet(AlbumIdStr + strconv.FormatInt(newId.Val(), 10), mapAlbum)
 	if result.Err() != nil {
 		return -1, result.Err()
 	}
@@ -95,18 +94,18 @@ func CreateAlbum(album *Album) (int64, error) {
 }
 
 // Collect all albums from database
-func GetAlbums() ([]*Album, error) {
+func GetAlbumsDB() ([]*Album, error) {
 	var albums []*Album
 
 	// Collect all albums identifiers
-	keys := config.DB.Keys(AlbumIdStr + "*")
+	keys := DB.Keys(AlbumIdStr + "*")
 	if len(keys.Val()) == 0 {
 		return nil, errors.New("No albums !!")
 	}
 
 	for i := 0; i < len(keys.Val()); i++ {
 		// Collect album by identifier
-		result := config.DB.HGetAll(keys.Val()[i])
+		result := DB.HGetAll(keys.Val()[i])
 		if result.Err() != nil {
 			return nil, result.Err()
 		}
@@ -122,11 +121,11 @@ func GetAlbums() ([]*Album, error) {
 }
 
 // Collect albums from database by author identifier
-func GetAlbumsByAuthor(idAuthor string) ([]*Album, error) {
+func GetAlbumsByAuthorDB(idAuthor string) ([]*Album, error) {
 	var albums []*Album
 
 	// Verification if author exist
-	resultAuthorExist := config.DB.Exists(AuthorIdStr + idAuthor)
+	resultAuthorExist := DB.Exists(AuthorIdStr + idAuthor)
 	if resultAuthorExist.Err() != nil {
 		return nil, resultAuthorExist.Err()
 	} else if resultAuthorExist.Val() == false {
@@ -134,14 +133,14 @@ func GetAlbumsByAuthor(idAuthor string) ([]*Album, error) {
 	}
 
 	// Collect all albums identifiers
-	keys := config.DB.Keys(AlbumIdStr + "*")
+	keys := DB.Keys(AlbumIdStr + "*")
 	if len(keys.Val()) == 0 {
 		return nil, errors.New("No albums !!")
 	}
 
 	for i := 0; i < len(keys.Val()); i++ {
 		// Collect album by identifier
-		result := config.DB.HGetAll(keys.Val()[i])
+		result := DB.HGetAll(keys.Val()[i])
 		if result.Err() != nil {
 			return nil, result.Err()
 		}
@@ -162,8 +161,8 @@ func GetAlbumsByAuthor(idAuthor string) ([]*Album, error) {
 }
 
 // Collect an album from database
-func GetAlbum(id string) (*Album, error) {
-	result := config.DB.HGetAll(AlbumIdStr + id)
+func GetAlbumDB(id string) (*Album, error) {
+	result := DB.HGetAll(AlbumIdStr + id)
 	if result.Err() != nil {
 		return nil, result.Err()
 	} else if len(result.Val()) == 0 {
@@ -178,9 +177,9 @@ func GetAlbum(id string) (*Album, error) {
 }
 
 // Update an album in database
-func UpdateAlbum(album *Album) (*Album, error) {
+func UpdateAlbumDB(album *Album) (*Album, error) {
 	// Verification if album exist
-	resultAlbumExist := config.DB.Exists(album.Id)
+	resultAlbumExist := DB.Exists(album.Id)
 	if resultAlbumExist.Err() != nil {
 		return album, resultAlbumExist.Err()
 	} else if resultAlbumExist.Val() == false {
@@ -188,7 +187,7 @@ func UpdateAlbum(album *Album) (*Album, error) {
 	}
 
 	// Verification if author exist
-	resultAuthorExist := config.DB.Exists("author:" + album.IdAuthor)
+	resultAuthorExist := DB.Exists("author:" + album.IdAuthor)
 	if resultAuthorExist.Err() != nil {
 		return album, resultAuthorExist.Err()
 	} else if resultAuthorExist.Val() == false {
@@ -208,7 +207,7 @@ func UpdateAlbum(album *Album) (*Album, error) {
 	}
 
 	// Update album with songs in database
-	result := config.DB.HMSet(album.Id, mapAlbum)
+	result := DB.HMSet(album.Id, mapAlbum)
 	if result.Err() != nil {
 		return album, result.Err()
 	}
@@ -217,8 +216,8 @@ func UpdateAlbum(album *Album) (*Album, error) {
 }
 
 // Delete an album in database
-func DeleteAlbum(id string) (bool, error) {
-	result := config.DB.Del(AlbumIdStr + id)
+func DeleteAlbumDB(id string) (bool, error) {
+	result := DB.Del(AlbumIdStr + id)
 	if result.Err() != nil {
 		return false, result.Err()
 	} else if result.Val() == 0 {
@@ -229,23 +228,23 @@ func DeleteAlbum(id string) (bool, error) {
 }
 
 // Delete all albums in database
-func DeleteAllAlbum() (bool, error) {
+func DeleteAllAlbumDB() (bool, error) {
 	// Collect all identifiers of albums
-	keys := config.DB.Keys(AlbumIdStr + "*")
+	keys := DB.Keys(AlbumIdStr + "*")
 	if len(keys.Val()) == 0 { // If no albums in database
-		config.LogWarning.Println("No albums !!")
+		LogWarning.Println("No albums !!")
 	}
 
 	for i := 0; i < len(keys.Val()); i++ {
 		// Deletion of album by identifier
-		resultDelAlbums := config.DB.Del(keys.Val()[i])
+		resultDelAlbums := DB.Del(keys.Val()[i])
 		if resultDelAlbums.Err() != nil {
 			return false, resultDelAlbums.Err()
 		}
 	}
 
 	// Delete number of albums in database
-	resultDelNbAlbum := config.DB.Del(AlbumStr)
+	resultDelNbAlbum := DB.Del(AlbumStr)
 	if resultDelNbAlbum.Err() != nil {
 		return false, resultDelNbAlbum.Err()
 	}

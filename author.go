@@ -1,9 +1,8 @@
-package models
+package main
 
 import (
 	"errors"
 	"strconv"
-	"go-redis-sample/config"
 )
 
 const AuthorStr = "author"
@@ -28,20 +27,20 @@ func (author Author) Valid() (error) {
 }
 
 // Create an author in database
-func CreateAuthor(author *Author) (int64, error) {
+func CreateAuthorDB(author *Author) (int64, error) {
 	mapAuthor := map[string]string{
 		"firstname":	author.Firstname,
 		"lastname": 	author.Lastname,
 	}
 
 	// Increment number of authors
-	newId := config.DB.Incr(AuthorStr)
+	newId := DB.Incr(AuthorStr)
 	if newId.Err() != nil {
 		return -1, newId.Err()
 	}
 
 	// Insert author in database
-	result := config.DB.HMSet(AuthorIdStr + strconv.FormatInt(newId.Val(), 10), mapAuthor)
+	result := DB.HMSet(AuthorIdStr + strconv.FormatInt(newId.Val(), 10), mapAuthor)
 	if result.Err() != nil {
 		return -1, result.Err()
 	}
@@ -50,18 +49,18 @@ func CreateAuthor(author *Author) (int64, error) {
 }
 
 // Collect all authors from database
-func GetAuthors() ([]*Author, error) {
+func GetAuthorsDB() ([]*Author, error) {
 	var authors []*Author
 
 	// Collect all authors identifiers
-	keys := config.DB.Keys(AuthorIdStr + "*")
+	keys := DB.Keys(AuthorIdStr + "*")
 	if len(keys.Val()) == 0 {
 		return nil, errors.New("No authors !!")
 	}
 
 	for i := 0; i < len(keys.Val()); i++ {
 		// Collect author by identifier
-		result := config.DB.HGetAll(keys.Val()[i])
+		result := DB.HGetAll(keys.Val()[i])
 		if result.Err() != nil {
 			return nil, result.Err()
 		}
@@ -74,8 +73,8 @@ func GetAuthors() ([]*Author, error) {
 }
 
 // Collect an author from database
-func GetAuthor(id string) (*Author, error) {
-	result := config.DB.HGetAll(AuthorIdStr + id)
+func GetAuthorDB(id string) (*Author, error) {
+	result := DB.HGetAll(AuthorIdStr + id)
 	if result.Err() != nil {
 		return nil, result.Err()
 	} else if len(result.Val()) == 0 {
@@ -88,9 +87,9 @@ func GetAuthor(id string) (*Author, error) {
 }
 
 // Update an author in database
-func UpdateAuthor(author *Author) (*Author, error) {
+func UpdateAuthorDB(author *Author) (*Author, error) {
 	// Verification if author exist
-	resultAuthorExist := config.DB.Exists(author.Id)
+	resultAuthorExist := DB.Exists(author.Id)
 	if resultAuthorExist.Err() != nil {
 		return nil, resultAuthorExist.Err()
 	} else if resultAuthorExist.Val() == false {
@@ -102,7 +101,7 @@ func UpdateAuthor(author *Author) (*Author, error) {
 	}
 
 	// Update author in database
-	result := config.DB.HMSet(author.Id, mapAuthor)
+	result := DB.HMSet(author.Id, mapAuthor)
 	if result.Err() != nil {
 		return nil, result.Err()
 	}
@@ -111,16 +110,16 @@ func UpdateAuthor(author *Author) (*Author, error) {
 }
 
 // Delete an author in database
-func DeleteAuthor(id string) (bool, error) {
+func DeleteAuthorDB(id string) (bool, error) {
 	// Collect all albums identifiers
-	keys := config.DB.Keys(AlbumIdStr + "*")
+	keys := DB.Keys(AlbumIdStr + "*")
 	if len(keys.Val()) == 0 {
-		config.LogWarning.Println("No albums !!")
+		LogWarning.Println("No albums !!")
 	}
 
 	for i := 0; i < len(keys.Val()); i++ {
 		// Collect album by identifier
-		result := config.DB.HGetAll(keys.Val()[i])
+		result := DB.HGetAll(keys.Val()[i])
 		if result.Err() != nil {
 			return false, result.Err()
 		} else if len(result.Val()) == 0 {
@@ -130,7 +129,7 @@ func DeleteAuthor(id string) (bool, error) {
 		// If author of the album is the same as the author in parameter,
 		// album is deleted in database
 		if id == result.Val()["idAuthor"] {
-			resultDelAlbum := config.DB.Del(keys.Val()[i])
+			resultDelAlbum := DB.Del(keys.Val()[i])
 			if resultDelAlbum.Err() != nil {
 				return false, resultDelAlbum.Err()
 			} else if resultDelAlbum.Val() == 0 {
@@ -140,7 +139,7 @@ func DeleteAuthor(id string) (bool, error) {
 	}
 
 	// Delete author in database
-	resultDelAuthor := config.DB.Del(AuthorIdStr + id)
+	resultDelAuthor := DB.Del(AuthorIdStr + id)
 	if resultDelAuthor.Err() != nil {
 		return false, resultDelAuthor.Err()
 	} else if resultDelAuthor.Val() == 0 {
@@ -151,23 +150,23 @@ func DeleteAuthor(id string) (bool, error) {
 }
 
 // Delete all authors in database
-func DeleteAllAuthor() (bool, error) {
+func DeleteAllAuthorDB() (bool, error) {
 	// Collect all identifiers of authors
-	keys := config.DB.Keys(AuthorIdStr + "*")
+	keys := DB.Keys(AuthorIdStr + "*")
 	if len(keys.Val()) == 0 {
-		config.LogWarning.Println("No authors !!")
+		LogWarning.Println("No authors !!")
 	}
 
 	for i := 0; i < len(keys.Val()); i++ {
 		// Deletion of author by identifier
-		resultDelAuthors := config.DB.Del(keys.Val()[i])
+		resultDelAuthors := DB.Del(keys.Val()[i])
 		if resultDelAuthors.Err() != nil {
 			return false, resultDelAuthors.Err()
 		}
 	}
 
 	// Delete number of authors in database
-	resultDelNbAuthor := config.DB.Del(AuthorStr)
+	resultDelNbAuthor := DB.Del(AuthorStr)
 	if resultDelNbAuthor.Err() != nil {
 		return false, resultDelNbAuthor.Err()
 	}

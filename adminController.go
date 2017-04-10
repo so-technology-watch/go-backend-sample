@@ -1,26 +1,24 @@
-package controllerAdmin
+package main
 
 import (
 	"encoding/json"
 	"net/http"
-	"go-redis-sample/config"
-	"go-redis-sample/models"
 )
 
 // Resource to delete all authors and albums with songs
 func DeleteAll(w http.ResponseWriter, r *http.Request) {
-	config.LogInfo.Println("Suppression de tout les clés")
+	LogInfo.Println("Suppression de tout les clés")
 
-	result, err := models.DeleteAllAuthor()
+	result, err := DeleteAllAuthorDB()
 	if err != nil {
-		config.LogError.Println(err)
+		LogError.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	result, err = models.DeleteAllAlbum()
+	result, err = DeleteAllAlbumDB()
 	if err != nil {
-		config.LogError.Println(err)
+		LogError.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -28,7 +26,7 @@ func DeleteAll(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(result); err != nil {
-		config.LogError.Println(err)
+		LogError.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}
 }
