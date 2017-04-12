@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"net/http"
-	
 
 	"github.com/gorilla/mux"
 )
@@ -30,7 +29,7 @@ func GetAuthor(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	authorId := vars["authorId"]
 
-	author, err := GetAuthorDB(authorId)
+	author, err := GetAuthorDB(AuthorIdStr + authorId)
 	if err != nil {
 		LogError.Println(err)
 		http.Error(w, err.Error(), http.StatusNotFound)
@@ -50,15 +49,7 @@ func GetAuthor(w http.ResponseWriter, r *http.Request) {
 func UpdateAuthor(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
-	author := &Author{Id: AuthorIdStr + vars["authorId"], Firstname: r.FormValue("firstname"), Lastname: r.FormValue("lastname")}
-	err := author.Valid()
-	if err != nil {
-		LogError.Println(err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	author, err = UpdateAuthorDB(author)
+	author, err := UpdateAuthorDB(vars["authorId"], r.FormValue("firstname"), r.FormValue("lastname"))
 	if err != nil {
 		LogError.Println(err)
 		http.Error(w, err.Error(), http.StatusNotFound)
@@ -75,23 +66,15 @@ func UpdateAuthor(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func AddAuthor(w http.ResponseWriter, r *http.Request) {
-	author := &Author{Firstname: r.FormValue("firstname"), Lastname: r.FormValue("lastname")}
-	err := author.Valid()
-	if err != nil {
-		LogError.Println(err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	LogInfo.Println("Add author :", author)
-
-	id, err := CreateAuthorDB(author)
+func CreateAuthor(w http.ResponseWriter, r *http.Request) {
+	id, err := CreateAuthorDB(r.FormValue("firstname"), r.FormValue("lastname"))
 	if err != nil {
 		LogError.Println(err)
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
+
+	LogInfo.Println("Add author :", id)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusCreated)
@@ -107,7 +90,7 @@ func DeleteAuthor(w http.ResponseWriter, r *http.Request) {
 
 	LogInfo.Println("Delete author : Id=" + authorId)
 
-	result, err := DeleteAuthorDB(authorId)
+	author, err := DeleteAuthorDB(authorId)
 	if err != nil {
 		LogError.Println(err)
 		http.Error(w, err.Error(), http.StatusNotFound)
@@ -116,7 +99,7 @@ func DeleteAuthor(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(w).Encode(result); err != nil {
+	if err := json.NewEncoder(w).Encode(author); err != nil {
 		LogError.Println(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 	}

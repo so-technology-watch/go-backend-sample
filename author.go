@@ -16,7 +16,7 @@ type Author struct {
 }
 
 // Validation of an author structure
-func (author Author) Valid() (error) {
+func (author Author) valid() (error) {
 	if author.Firstname == "" {
 		return errors.New("Firstname is mandatory")
 	}
@@ -26,23 +26,45 @@ func (author Author) Valid() (error) {
 	return nil
 }
 
-// Create an author in database
-func CreateAuthorDB(author *Author) (int64, error) {
+// Verification if author exist
+func (author Author) exist() (error) {
+	resultAuthorExist := DB.Exists(author.Id)
+	if resultAuthorExist.Err() != nil {
+		return resultAuthorExist.Err()
+	} else if resultAuthorExist.Val() == false {
+		return errors.New(author.Id + " don't exist !!")
+	}
+	return nil
+}
+
+// Save author
+func (author Author) save() (error) {
+	if err := author.valid(); err != nil {
+		return err
+	}
+
 	mapAuthor := map[string]string{
 		"firstname":	author.Firstname,
 		"lastname": 	author.Lastname,
 	}
 
+	// Save author in database
+	result := DB.HMSet(author.Id, mapAuthor)
+	return result.Err()
+}
+
+// Create an author in database
+func CreateAuthorDB(firstname, lastname string) (int64, error) {
 	// Increment number of authors
 	newId := DB.Incr(AuthorStr)
 	if newId.Err() != nil {
 		return -1, newId.Err()
 	}
 
-	// Insert author in database
-	result := DB.HMSet(AuthorIdStr + strconv.FormatInt(newId.Val(), 10), mapAuthor)
-	if result.Err() != nil {
-		return -1, result.Err()
+	author := Author{Id: AuthorIdStr + strconv.FormatInt(newId.Val(), 10), Firstname: firstname, Lastname: lastname}
+
+	if err := author.save(); err != nil {
+		return -1, err
 	}
 
 	return newId.Val(), nil
@@ -60,12 +82,11 @@ func GetAuthorsDB() ([]*Author, error) {
 
 	for i := 0; i < len(keys.Val()); i++ {
 		// Collect author by identifier
-		result := DB.HGetAll(keys.Val()[i])
-		if result.Err() != nil {
-			return nil, result.Err()
+		author, err := GetAuthorDB(keys.Val()[i])
+		if err != nil {
+			return nil, err
 		}
 
-		author := &Author{keys.Val()[i], result.Val()["firstname"], result.Val()["lastname"]}
 		authors = append(authors, author)
 	}
 
@@ -74,67 +95,45 @@ func GetAuthorsDB() ([]*Author, error) {
 
 // Collect an author from database
 func GetAuthorDB(id string) (*Author, error) {
-	result := DB.HGetAll(AuthorIdStr + id)
+	result := DB.HGetAll(id)
 	if result.Err() != nil {
 		return nil, result.Err()
 	} else if len(result.Val()) == 0 {
-		return nil, errors.New(AuthorIdStr + id + " don't exist !!")
+		return nil, errors.New(id + " don't exist !!")
 	}
 
-	author := &Author{Id: AuthorIdStr + id, Firstname: result.Val()["firstname"], Lastname: result.Val()["lastname"]}
+	author := Author{Id: id, Firstname: result.Val()["firstname"], Lastname: result.Val()["lastname"]}
 
-	return author, nil
+	return &author, nil
 }
 
 // Update an author in database
-func UpdateAuthorDB(author *Author) (*Author, error) {
-	// Verification if author exist
-	resultAuthorExist := DB.Exists(author.Id)
-	if resultAuthorExist.Err() != nil {
-		return nil, resultAuthorExist.Err()
-	} else if resultAuthorExist.Val() == false {
-		return nil, errors.New(author.Id + " don't exist !!")
-	}
-	mapAuthor := map[string]string{
-		"firstname":	author.Firstname,
-		"lastname": 	author.Lastname,
+func UpdateAuthorDB(id, firstname, lastname string) (*Author, error) {
+	author := Author{Id: AuthorIdStr + id, Firstname: firstname, Lastname: lastname}
+
+	if err := author.exist(); err != nil {
+		return nil, err
 	}
 
-	// Update author in database
-	result := DB.HMSet(author.Id, mapAuthor)
-	if result.Err() != nil {
-		return nil, result.Err()
+	if err := author.save(); err != nil {
+		return nil, err
 	}
 
-	return author, nil
+	return &author, nil
 }
 
 // Delete an author in database
 func DeleteAuthorDB(id string) (bool, error) {
-	// Collect all albums identifiers
-	keys := DB.Keys(AlbumIdStr + "*")
-	if len(keys.Val()) == 0 {
-		LogWarning.Println("No albums !!")
+	albums, err := GetAlbumsByAuthorDB(id)
+	if err != nil {
+		return false, err
 	}
-
-	for i := 0; i < len(keys.Val()); i++ {
-		// Collect album by identifier
-		result := DB.HGetAll(keys.Val()[i])
-		if result.Err() != nil {
-			return false, result.Err()
-		} else if len(result.Val()) == 0 {
-			return false, errors.New(AuthorIdStr + id + " don't exist !!")
-		}
-
-		// If author of the album is the same as the author in parameter,
-		// album is deleted in database
-		if id == result.Val()["idAuthor"] {
-			resultDelAlbum := DB.Del(keys.Val()[i])
-			if resultDelAlbum.Err() != nil {
-				return false, resultDelAlbum.Err()
-			} else if resultDelAlbum.Val() == 0 {
-				return false, errors.New(keys.Val()[i] + " don't exist !!")
-			}
+	for i := 0; i < len(albums); i++ {
+		resultDelAlbum := DB.Del(albums[i].Id)
+		if resultDelAlbum.Err() != nil {
+			return false, resultDelAlbum.Err()
+		} else if resultDelAlbum.Val() == 0 {
+			return false, errors.New(albums[i].Id + " don't exist !!")
 		}
 	}
 

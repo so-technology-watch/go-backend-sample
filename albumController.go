@@ -50,7 +50,7 @@ func GetAlbum(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	albumId := vars["albumId"]
 
-	album, err := GetAlbumDB(albumId)
+	album, err := GetAlbumDB(AlbumIdStr + albumId)
 	if err != nil {
 		LogError.Println(err)
 		http.Error(w, err.Error(), http.StatusNotFound)
@@ -70,17 +70,7 @@ func GetAlbum(w http.ResponseWriter, r *http.Request) {
 func UpdateAlbum(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 
-	var songs []Song
-	json.Unmarshal([]byte(r.FormValue("songs")), &songs)
-	album := &Album{Id: AlbumIdStr + vars["albumId"], Title: r.FormValue("title"), Description: r.FormValue("description"), IdAuthor: r.FormValue("authorId"), Songs: songs}
-	err := album.Valid()
-	if err != nil {
-		LogError.Println(err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	album, err = UpdateAlbumDB(album)
+	album, err := UpdateAlbumDB(vars["albumId"], r.FormValue("title"), r.FormValue("description"), r.FormValue("authorId"), []byte(r.FormValue("songs")))
 	if err != nil {
 		LogError.Println(err)
 		http.Error(w, err.Error(), http.StatusNotFound)
@@ -97,25 +87,14 @@ func UpdateAlbum(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func AddAlbum(w http.ResponseWriter, r *http.Request) {
-	var songs []Song
-	json.Unmarshal([]byte(r.FormValue("songs")), &songs)
-	album := &Album{Title: r.FormValue("title"), Description: r.FormValue("description"), IdAuthor: r.FormValue("authorId"), Songs: songs}
-	err := album.Valid()
-	if err != nil {
-		LogError.Println(err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	LogInfo.Println("Add album :", album)
-
-	id, err := CreateAlbumDB(album)
+func CreateAlbum(w http.ResponseWriter, r *http.Request) {
+	id, err := CreateAlbumDB(r.FormValue("title"), r.FormValue("description"), r.FormValue("authorId"), []byte(r.FormValue("songs")))
 	if err != nil {
 		LogError.Println(err)
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
+	LogInfo.Println("Add album :", id)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusCreated)

@@ -25,7 +25,7 @@ type Song struct {
 }
 
 // Validation of an album structure
-func (album Album) Valid() (error) {
+func (album Album) valid() (error) {
 	if album.Title == "" {
 		return errors.New("Title is mandatory")
 	}
@@ -36,7 +36,7 @@ func (album Album) Valid() (error) {
 		return errors.New("Title is mandatory")
 	}
 	for i:=0; i<len(album.Songs); i++ {
-		err := album.Songs[i].Valid()
+		err := album.Songs[i].valid()
 		if err != nil {
 			return err
 		}
@@ -46,7 +46,7 @@ func (album Album) Valid() (error) {
 }
 
 // Validation of a song structure
-func (song Song) Valid() (error) {
+func (song Song) valid() (error) {
 	if song.Number == "" {
 		return errors.New("Number of song is mandatory")
 	}
@@ -56,38 +56,58 @@ func (song Song) Valid() (error) {
 	return nil
 }
 
-// Create an album in database
-func CreateAlbumDB(album *Album) (int64, error) {
-	// Verification if author exist
-	resultAuthorExist := DB.Exists(AuthorIdStr + album.IdAuthor)
+// Verification if album exist
+func (album Album) exist() (error) {
+	resultAuthorExist := DB.Exists(album.Id)
 	if resultAuthorExist.Err() != nil {
-		return -1, resultAuthorExist.Err()
+		return resultAuthorExist.Err()
 	} else if resultAuthorExist.Val() == false {
-		return -1, errors.New(album.IdAuthor + " don't exist !!")
+		return errors.New(album.Id + " don't exist !!")
+	}
+	return nil
+}
+
+// Save album
+func (album Album) save() (error) {
+	if err := album.valid(); err != nil {
+		return err
 	}
 
 	songs, err := json.Marshal(album.Songs)
 	if err != nil {
-		return -1, err
+		return err
 	}
 
 	mapAlbum := map[string]string{
-		"title":    	album.Title,
-		"description":	album.Description,
+		"title":     	album.Title,
+		"description":  album.Description,
 		"idAuthor": 	album.IdAuthor,
 		"songs": 	string(songs),
 	}
 
+	// Save album with songs in database
+	result := DB.HMSet(album.Id, mapAlbum)
+	return result.Err()
+}
+
+func constructAlbum(id, title, description, authorId string, tabSongs []byte) (album Album) {
+	var songs []Song
+	json.Unmarshal(tabSongs, &songs)
+	return Album{Id: id, Title: title, Description: description, IdAuthor: authorId, Songs: songs}
+}
+
+// Create an album in database
+func CreateAlbumDB(title, description, authorId string, songs []byte) (int64, error) {
 	// Increment number of albums
 	newId := DB.Incr(AlbumStr)
 	if newId.Err() != nil {
 		return -1, newId.Err()
 	}
 
-	// Insert album in database
-	result := DB.HMSet(AlbumIdStr + strconv.FormatInt(newId.Val(), 10), mapAlbum)
-	if result.Err() != nil {
-		return -1, result.Err()
+	album := constructAlbum(AlbumIdStr + strconv.FormatInt(newId.Val(), 10), title, description, authorId, songs)
+
+	if err := album.save(); err != nil {
+		return -1, err
 	}
 
 	return newId.Val(), nil
@@ -105,14 +125,10 @@ func GetAlbumsDB() ([]*Album, error) {
 
 	for i := 0; i < len(keys.Val()); i++ {
 		// Collect album by identifier
-		result := DB.HGetAll(keys.Val()[i])
-		if result.Err() != nil {
-			return nil, result.Err()
+		album, err := GetAlbumDB(keys.Val()[i])
+		if err != nil {
+			return nil, err
 		}
-
-		var songs []Song
-		json.Unmarshal([]byte(result.Val()["songs"]), &songs)
-		album := &Album{Id: keys.Val()[i], Title: result.Val()["title"], Description: result.Val()["description"], IdAuthor: result.Val()["idAuthor"], Songs: songs}
 
 		albums = append(albums, album)
 	}
@@ -146,10 +162,8 @@ func GetAlbumsByAuthorDB(idAuthor string) ([]*Album, error) {
 		}
 
 		if result.Val()["idAuthor"] == idAuthor {
-			var songs []Song
-			json.Unmarshal([]byte(result.Val()["songs"]), &songs)
-			album := &Album{Id: keys.Val()[i], Title: result.Val()["title"], Description: result.Val()["description"], IdAuthor: result.Val()["idAuthor"], Songs: songs}
-			albums = append(albums, album)
+			album := constructAlbum(keys.Val()[i], result.Val()["title"], result.Val()["description"], result.Val()["idAuthor"], []byte(result.Val()["songs"]))
+			albums = append(albums, &album)
 		}
 	}
 
@@ -162,57 +176,39 @@ func GetAlbumsByAuthorDB(idAuthor string) ([]*Album, error) {
 
 // Collect an album from database
 func GetAlbumDB(id string) (*Album, error) {
-	result := DB.HGetAll(AlbumIdStr + id)
+	result := DB.HGetAll(id)
 	if result.Err() != nil {
 		return nil, result.Err()
 	} else if len(result.Val()) == 0 {
 		return nil, errors.New(AlbumIdStr + id + " don't exist !!")
 	}
 
-	var songs []Song
-	json.Unmarshal([]byte(result.Val()["songs"]), &songs)
-	album := &Album{Id: AlbumIdStr + id, Title: result.Val()["title"], Description: result.Val()["description"], IdAuthor: result.Val()["idAuthor"], Songs: songs}
+	album := constructAlbum(AlbumIdStr + id, result.Val()["title"], result.Val()["description"], result.Val()["idAuthor"], []byte(result.Val()["songs"]))
 
-	return album, nil
+	return &album, nil
 }
 
 // Update an album in database
-func UpdateAlbumDB(album *Album) (*Album, error) {
-	// Verification if album exist
-	resultAlbumExist := DB.Exists(album.Id)
-	if resultAlbumExist.Err() != nil {
-		return album, resultAlbumExist.Err()
-	} else if resultAlbumExist.Val() == false {
-		return album, errors.New(album.Id + " don't exist !!")
-	}
+func UpdateAlbumDB(id, title, description, authorId string, songs []byte) (*Album, error) {
+	album := constructAlbum(AlbumIdStr + id, title, description, authorId, songs)
 
 	// Verification if author exist
-	resultAuthorExist := DB.Exists("author:" + album.IdAuthor)
+	resultAuthorExist := DB.Exists(AuthorIdStr + album.IdAuthor)
 	if resultAuthorExist.Err() != nil {
-		return album, resultAuthorExist.Err()
+		return nil, resultAuthorExist.Err()
 	} else if resultAuthorExist.Val() == false {
-		return album, errors.New(AuthorIdStr + album.IdAuthor + " don't exist !!")
+		return nil, errors.New(AuthorIdStr + album.IdAuthor + " don't exist !!")
 	}
 
-	songs, err := json.Marshal(album.Songs)
-	if err != nil {
-		return album, err
+	if err := album.exist(); err != nil {
+		return nil, err
 	}
 
-	mapAlbum := map[string]string{
-		"title":     	album.Title,
-		"description":  album.Description,
-		"idAuthor": 	album.IdAuthor,
-		"songs": 	string(songs),
+	if err := album.save(); err != nil {
+		return nil, err
 	}
 
-	// Update album with songs in database
-	result := DB.HMSet(album.Id, mapAlbum)
-	if result.Err() != nil {
-		return album, result.Err()
-	}
-
-	return album, nil
+	return &album, nil
 }
 
 // Delete an album in database
