@@ -29,7 +29,7 @@ func GetAlbumsByAuthor(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	authorId := vars["authorId"]
 
-	LogInfo.Println("List albums of author : AuthorId=" + authorId)
+	LogInfo.Println("List albums of author : " + authorId)
 
 	albums, err := GetAlbumsByAuthorDB(authorId)
 	if err != nil {
@@ -57,7 +57,7 @@ func GetAlbum(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	LogInfo.Println("Album :", album)
+	LogInfo.Println("Album : ", album)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -77,7 +77,7 @@ func UpdateAlbum(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	LogInfo.Println("Update album :", album)
+	LogInfo.Println("Update album : ", album)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -94,7 +94,7 @@ func CreateAlbum(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
-	LogInfo.Println("Add album :", id)
+	LogInfo.Println("Add album : ", id)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusCreated)
@@ -108,7 +108,7 @@ func DeleteAlbum(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	albumId := vars["albumId"]
 
-	LogError.Println("Delete album : Id=" + albumId)
+	LogInfo.Println("Delete album : " + albumId)
 
 	result, err := DeleteAlbumDB(albumId)
 	if err != nil {

@@ -36,7 +36,7 @@ func GetAuthor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	LogInfo.Println("Author :", author)
+	LogInfo.Println("Author : ", author)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -56,7 +56,7 @@ func UpdateAuthor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	LogInfo.Println("Update author :", author)
+	LogInfo.Println("Update author : ", author)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusOK)
@@ -74,7 +74,7 @@ func CreateAuthor(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	LogInfo.Println("Add author :", id)
+	LogInfo.Println("Add author : ", id)
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
 	w.WriteHeader(http.StatusCreated)
@@ -88,7 +88,7 @@ func DeleteAuthor(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	authorId := vars["authorId"]
 
-	LogInfo.Println("Delete author : Id=" + authorId)
+	LogInfo.Println("Delete author : " + authorId)
 
 	author, err := DeleteAuthorDB(authorId)
 	if err != nil {

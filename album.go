@@ -30,10 +30,10 @@ func (album Album) valid() (error) {
 		return errors.New("Title is mandatory")
 	}
 	if album.Description == "" {
-		return errors.New("Title is mandatory")
+		return errors.New("Description is mandatory")
 	}
 	if album.IdAuthor == "" {
-		return errors.New("Title is mandatory")
+		return errors.New("Author ID is mandatory")
 	}
 	for i:=0; i<len(album.Songs); i++ {
 		err := album.Songs[i].valid()
