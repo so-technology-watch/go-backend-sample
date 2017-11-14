@@ -1,4 +1,4 @@
-package main
+package utils
 
 import (
 	"io"
@@ -20,23 +20,23 @@ func init() {
 	if _, err := os.Stat(logsFolder); os.IsNotExist(err) {
 		err := os.Mkdir(logsFolder, os.ModeDir)
 		if err != nil {
-			log.Fatalln("Failed to create logs folder", os.Stdout, ":", err)
+			log.Fatalln("failed to create logs folder", os.Stdout, ":", err)
 		}
 	}
 
 	// Verification if log file exist
 	current := time.Now()
-	logFileName := logsFolder + "/go-redis-sample-" + current.Format("02-01-2006") + ".log"
+	logFileName := logsFolder + "/go-redis-bookstore-" + current.Format("02-01-2006") + ".log"
 	var logFile *os.File
 	if _, err := os.Stat(logFileName); os.IsNotExist(err) {
 		logFile, err = os.Create(logFileName)
 		if err != nil {
-			log.Fatalln("Failed to create log file", os.Stdout, ":", err)
+			log.Fatalln("failed to create log file", os.Stdout, ":", err)
 		}
 	} else {
 		logFile, err = os.OpenFile(logFileName, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 		if err != nil {
-			log.Fatalln("Failed to open log file", os.Stdout, ":", err)
+			log.Fatalln("failed to open log file", os.Stdout, ":", err)
 		}
 	}
 
