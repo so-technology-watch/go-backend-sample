@@ -3,7 +3,7 @@ package dao
 import (
 	"errors"
 	"github.com/BurntSushi/toml"
-	"go-redis-sample/utils"
+	"go-backend-sample/utils"
 	"gopkg.in/redis.v5"
 	"gopkg.in/mgo.v2"
 	"time"

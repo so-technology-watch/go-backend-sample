@@ -1,7 +1,7 @@
 package dao
 
 import (
-	"go-redis-sample/model"
+	"go-backend-sample/model"
 )
 
 // AuthorDAO is the DAO interface to work with authors

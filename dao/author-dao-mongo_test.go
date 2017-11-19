@@ -3,12 +3,12 @@ package dao_test
 import (
 	"github.com/satori/go.uuid"
 	"testing"
-	"go-redis-sample/dao"
-	"go-redis-sample/model"
+	"go-backend-sample/dao"
+	"go-backend-sample/model"
 )
 
 func TestAuthorDAOMongo(t *testing.T) {
-	authorDao, _, err := dao.GetDAO(dao.MongoDAO, dao.DBConfigFileName)
+	authorDao, _, err := dao.GetDAO(dao.MongoDAO, "")
 	if err != nil {
 		t.Error(err)
 	}

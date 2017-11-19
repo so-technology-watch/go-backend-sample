@@ -1,9 +1,9 @@
 package main
 
 import (
-	"go-redis-sample/dao"
-	"go-redis-sample/utils"
-	"go-redis-sample/web"
+	"go-backend-sample/dao"
+	"go-backend-sample/utils"
+	"go-backend-sample/web"
 	"net/http"
 	"time"
 	"gopkg.in/urfave/cli.v1"

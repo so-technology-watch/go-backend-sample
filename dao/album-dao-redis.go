@@ -3,8 +3,8 @@ package dao
 import (
 	"encoding/json"
 	"errors"
-	"go-redis-sample/model"
-	"go-redis-sample/utils"
+	"go-backend-sample/model"
+	"go-backend-sample/utils"
 	"gopkg.in/redis.v5"
 	"strconv"
 )

@@ -2,7 +2,7 @@ package dao
 
 import (
 	"errors"
-	"go-redis-sample/model"
+	"go-backend-sample/model"
 	"github.com/satori/go.uuid"
 )
 

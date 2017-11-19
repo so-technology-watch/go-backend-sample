@@ -4,8 +4,8 @@ import (
 	"errors"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-	"go-redis-sample/model"
-	"go-redis-sample/utils"
+	"go-backend-sample/model"
+	"go-backend-sample/utils"
 	"github.com/satori/go.uuid"
 )
 

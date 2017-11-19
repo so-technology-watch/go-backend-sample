@@ -1,7 +1,5 @@
-# go-redis-sample
-Go Redis Sample Backend Application
+# go-backend-sample
+Go Sample Backend Application
 
 ## Prerequisites
 * Install Golang : ([Doc](https://golang.org/doc/install))
-
-* Install Redis : ([Doc](https://redis.io/download))

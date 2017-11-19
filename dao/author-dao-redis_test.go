@@ -1,13 +1,13 @@
 package dao_test
 
 import (
-	"go-redis-sample/dao"
-	"go-redis-sample/model"
+	"go-backend-sample/dao"
+	"go-backend-sample/model"
 	"testing"
 )
 
 func TestAuthorDAORedis(t *testing.T) {
-	authorDao, _, err := dao.GetDAO(dao.RedisDAO, dao.DBConfigFileName)
+	authorDao, _, err := dao.GetDAO(dao.RedisDAO, "")
 	if err != nil {
 		t.Error(err)
 	}

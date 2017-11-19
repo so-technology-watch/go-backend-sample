@@ -2,13 +2,13 @@ package dao_test
 
 import (
 	"testing"
-	"go-redis-sample/dao"
-	"go-redis-sample/model"
+	"go-backend-sample/dao"
+	"go-backend-sample/model"
 )
 
 func TestAlbumDAOMock(t *testing.T) {
 
-	_, albumDaoMock, err := dao.GetDAO(dao.MockDAO, dao.DBConfigFileName)
+	_, albumDaoMock, err := dao.GetDAO(dao.MockDAO, "")
 	if err != nil {
 		t.Error(err)
 	}

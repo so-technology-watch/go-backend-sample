@@ -1,7 +1,7 @@
 package dao
 
 import (
-	"go-redis-sample/model"
+	"go-backend-sample/model"
 )
 
 // AlbumDAO is the DAO interface to work with albums

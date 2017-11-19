@@ -1,8 +1,8 @@
 package web
 
 import (
-	"go-redis-sample/dao"
-	"go-redis-sample/utils"
+	"go-backend-sample/dao"
+	"go-backend-sample/utils"
 	"net/http"
 )
 
