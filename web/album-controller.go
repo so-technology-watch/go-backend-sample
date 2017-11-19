@@ -27,7 +27,7 @@ func NewAlbumController(albumDAO dao.AlbumDAO, authorDAO dao.AuthorDAO) *AlbumCo
 		Prefix:    prefixAlbum,
 	}
 
-	routes := []Route{}
+	var routes []Route
 	// GetAll
 	routes = append(routes, Route{
 		Name:        "Get all albums",
@@ -39,7 +39,7 @@ func NewAlbumController(albumDAO dao.AlbumDAO, authorDAO dao.AuthorDAO) *AlbumCo
 	routes = append(routes, Route{
 		Name:        "Get albums by author",
 		Method:      http.MethodGet,
-		Pattern:     "",
+		Pattern:     "/author/{authorId}",
 		HandlerFunc: controller.GetAlbumsByAuthor,
 	})
 	// Get
@@ -107,9 +107,9 @@ func (ctrl *AlbumController) GetAlbumsByAuthor(w http.ResponseWriter, r *http.Re
 
 // GetAlbum retrieve an album by id
 func (ctrl *AlbumController) GetAlbum(w http.ResponseWriter, r *http.Request) {
-	albumID := ParamAsString("albumId", r)
+	albumId := ParamAsString("id", r)
 
-	album, err := ctrl.albumDao.Get(albumID)
+	album, err := ctrl.albumDao.Get(albumId)
 	if err != nil {
 		utils.LogError.Println(err)
 		SendJSONError(w, err.Error(), http.StatusInternalServerError)

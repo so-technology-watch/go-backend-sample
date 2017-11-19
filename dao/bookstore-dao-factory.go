@@ -5,67 +5,129 @@ import (
 	"github.com/BurntSushi/toml"
 	"go-redis-sample/utils"
 	"gopkg.in/redis.v5"
+	"gopkg.in/mgo.v2"
+	"time"
 )
 
 // DBType lists the type of implementation the factory can return
 type DBType int
 
-type RedisConfig struct {
+type DefaultDBsConfig struct {
+	Redis DBConfig
+	Mongo DBConfig
+}
+
+type DBConfig struct {
 	Url      string
 	Port     string
 	Password string
-	Db       string
+	Database string
 }
 
 const (
-	// DAORedis is used for Redis implementation of AlbumDAO or AuthorDAO
-	DAORedis DBType = iota
-	// DAOMock is used for mocked implementation of AlbumDAO or AuthorDAO
-	DAOMock
+	// RedisDAO is used for Redis implementation of AlbumDAO or AuthorDAO
+	RedisDAO DBType = iota
+	// MongoDAO is used for Mongo implementation of AlbumDAO or AuthorDAO
+	MongoDAO
+	// MockDAO is used for mocked implementation of AlbumDAO or AuthorDAO
+	MockDAO
+
+	// mongo timeout
+	timeout = 5 * time.Second
+	// poolSize of mongo connection pool
+	poolSize = 35
+
+	dbConfigFileName = "default-dbs-config.toml"
 )
 
 var (
 	ErrorDAONotFound = errors.New("unknown DAO type")
-	redisCli         *redis.Client
 )
 
 // GetDAO returns an AlbumDAO & an AuthorDAO according to type and params
-func GetDAO(daoType DBType) (AuthorDAO, AlbumDAO, error) {
+func GetDAO(daoType DBType, dbConfigFile string) (AuthorDAO, AlbumDAO, error) {
 	switch daoType {
-	case DAORedis:
-		initRedis()
+	case RedisDAO:
+		config := getConfig(RedisDAO, dbConfigFile)
+		redisCli := initRedis(config)
 		return NewAuthorDAORedis(redisCli), NewAlbumDAORedis(redisCli), nil
-	//case DAOMock:
-	//	return NewAuthorDAOMock(), NewAlbumDAOMock(), nil
+	case MongoDAO:
+		config := getConfig(MongoDAO, dbConfigFile)
+		mongoSession := initMongo(config)
+		return NewAuthorDAOMongo(mongoSession), NewAlbumDAOMongo(mongoSession), nil
+	case MockDAO:
+		return NewAuthorDAOMock(), NewAlbumDAOMock(), nil
 	default:
 		return nil, nil, ErrorDAONotFound
 	}
 }
 
 // Initialize Redis database
-func initRedis() {
+func initRedis(dbConfig DBConfig) *redis.Client {
 	utils.LogInfo.Println("connexion Redis")
 
-	redisConfig := RedisConfig{}
-	if _, err := toml.DecodeFile("./config/config.toml", &redisConfig); err != nil {
-		utils.LogError.Println("paramètres de connexion Redis error :", err)
-		panic(err)
-	}
+	utils.LogInfo.Println("redis " + dbConfig.Url)
 
-	// Connection to the REDIS database
-	client := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "",
-		DB:       0,
+	// Connection to the Redis database
+	redisCli := redis.NewClient(&redis.Options{
+		Addr:     dbConfig.Url + ":" + dbConfig.Port,
+		Password: dbConfig.Password,
+		DB:       int(RedisDAO),
 	})
 
 	// Verification of connection
-	ok, err := client.Ping().Result()
+	ok, err := redisCli.Ping().Result()
 	if err != nil {
-		utils.LogError.Println("connexion Redis error :", err.Error())
+		utils.LogError.Println("redis connexion error :", err.Error())
 		panic(err)
 	} else {
-		utils.LogInfo.Println("connexion Redis OK :", ok)
+		utils.LogInfo.Println("redis connexion OK :", ok)
 	}
-	redisCli = client
+
+	return redisCli
+}
+
+func initMongo(dbConfig DBConfig) *mgo.Session {
+	utils.LogInfo.Println("mongodb connexion")
+
+	utils.LogInfo.Println("mongodb " + dbConfig.Url)
+
+	// Connection to the Mongo database
+	mongoSession, err := mgo.DialWithTimeout("mongodb://" + dbConfig.Url + ":" + dbConfig.Port + "/" + dbConfig.Database, timeout)
+	if err != nil {
+		utils.LogError.Println("mongodb connexion error :", err.Error())
+		panic(err)
+	} else {
+		utils.LogInfo.Println("mongodb connexion OK")
+	}
+
+	mongoSession.SetSyncTimeout(timeout)
+	mongoSession.SetSocketTimeout(timeout)
+	mongoSession.SetMode(mgo.Monotonic, true)
+	mongoSession.SetPoolLimit(poolSize)
+
+	return mongoSession
+}
+
+func getConfig(daoType DBType, dbConfigFile string) DBConfig {
+	var config DBConfig
+	if dbConfigFile == "" {
+		var defaultConfig DefaultDBsConfig
+		if _, err := toml.DecodeFile(dbConfigFileName, &defaultConfig); err != nil {
+			utils.LogError.Println("connexion parameters error :", err)
+			panic(err)
+		}
+		switch daoType {
+		case RedisDAO:
+			config = defaultConfig.Redis
+		case MongoDAO:
+			config = defaultConfig.Mongo
+		}
+	} else {
+		if _, err := toml.DecodeFile(dbConfigFile, &config); err != nil {
+			utils.LogError.Println("connexion parameters error :", err)
+			panic(err)
+		}
+	}
+	return config
 }

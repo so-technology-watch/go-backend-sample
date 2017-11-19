@@ -29,13 +29,13 @@ func NewAlbum(id, title, description, authorId string, tabSongs []byte) *Album {
 // Validation of an album structure
 func (album Album) Valid() error {
 	if album.Title == "" {
-		return errors.New("Title is mandatory")
+		return errors.New("title is mandatory")
 	}
 	if album.Description == "" {
-		return errors.New("Description is mandatory")
+		return errors.New("description is mandatory")
 	}
 	if album.AuthorId == "" {
-		return errors.New("Author ID is mandatory")
+		return errors.New("author id is mandatory")
 	}
 	for i := 0; i < len(album.Songs); i++ {
 		err := album.Songs[i].Valid()

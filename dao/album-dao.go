@@ -25,6 +25,6 @@ type AlbumDAO interface {
 	// DeleteAll deletes all albums
 	DeleteAll() error
 
-	// Check if the album exist
+	// Exist checks if the album exist
 	Exist(id string) (bool, error)
 }

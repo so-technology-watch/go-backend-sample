@@ -44,7 +44,7 @@ func (dao *AlbumDAORedis) GetAll() ([]model.Album, error) {
 	var albums []model.Album
 
 	// Collect all albums identifiers
-	keys := redisCli.Keys(AlbumIdStr + "*").Val()
+	keys := dao.redisCli.Keys(AlbumIdStr + "*").Val()
 	if len(keys) == 0 {
 		return nil, errors.New("no albums")
 	}
@@ -67,7 +67,7 @@ func (dao *AlbumDAORedis) GetByAuthor(authorId string) ([]model.Album, error) {
 	var albums []model.Album
 
 	// Collect all albums identifiers
-	keys := redisCli.Keys(AlbumIdStr + "*").Val()
+	keys := dao.redisCli.Keys(AlbumIdStr + "*").Val()
 	if len(keys) == 0 {
 		return nil, errors.New("no albums")
 	}
@@ -95,7 +95,7 @@ func (dao *AlbumDAORedis) GetByAuthor(authorId string) ([]model.Album, error) {
 func (dao *AlbumDAORedis) Upsert(album *model.Album) (*model.Album, error) {
 	if album.Id == "" {
 		// Increment number of albums
-		resultNewId, err := redisCli.Incr(AlbumStr).Result()
+		resultNewId, err := dao.redisCli.Incr(AlbumStr).Result()
 		if err != nil {
 			return nil, err
 		}
@@ -112,7 +112,7 @@ func (dao *AlbumDAORedis) Upsert(album *model.Album) (*model.Album, error) {
 
 // Delete deletes an album by its id
 func (dao *AlbumDAORedis) Delete(id string) error {
-	result, err := redisCli.Del(AlbumIdStr + id).Result()
+	result, err := dao.redisCli.Del(AlbumIdStr + id).Result()
 	if err != nil {
 		return err
 	} else if result == 0 {
@@ -125,21 +125,21 @@ func (dao *AlbumDAORedis) Delete(id string) error {
 // DeleteAll deletes all albums
 func (dao *AlbumDAORedis) DeleteAll() error {
 	// Collect all identifiers of albums
-	keys := redisCli.Keys(AlbumIdStr + "*").Val()
+	keys := dao.redisCli.Keys(AlbumIdStr + "*").Val()
 	if len(keys) == 0 { // If no albums in database
 		utils.LogWarning.Println("no albums")
 	}
 
 	for i := 0; i < len(keys); i++ {
 		// Deletion of album by identifier
-		_, err := redisCli.Del(keys[i]).Result()
+		_, err := dao.redisCli.Del(keys[i]).Result()
 		if err != nil {
 			return err
 		}
 	}
 
 	// Delete number of albums in database
-	resultDelNbAlbum := redisCli.Del(AlbumStr)
+	resultDelNbAlbum := dao.redisCli.Del(AlbumStr)
 	if resultDelNbAlbum.Err() != nil {
 		return resultDelNbAlbum.Err()
 	}
@@ -147,9 +147,9 @@ func (dao *AlbumDAORedis) DeleteAll() error {
 	return nil
 }
 
-// Check if the album exist
+// Exist checks if the album exist
 func (dao *AlbumDAORedis) Exist(id string) (bool, error) {
-	result, err := redisCli.Exists(AlbumIdStr + id).Result()
+	result, err := dao.redisCli.Exists(AlbumIdStr + id).Result()
 	if err != nil {
 		return false, err
 	} else if result == false {
@@ -166,7 +166,7 @@ func (dao *AlbumDAORedis) save(album *model.Album) (*model.Album, error) {
 	}
 
 	// Save album with songs in database
-	status := redisCli.Set(AlbumIdStr+album.Id, string(result), 0)
+	status := dao.redisCli.Set(AlbumIdStr+album.Id, string(result), 0)
 	if status.Err() != nil {
 		return nil, status.Err()
 	}
@@ -175,7 +175,7 @@ func (dao *AlbumDAORedis) save(album *model.Album) (*model.Album, error) {
 }
 
 func (dao *AlbumDAORedis) get(id string) (*model.Album, error) {
-	result, err := redisCli.Get(id).Result()
+	result, err := dao.redisCli.Get(id).Result()
 	if err != nil {
 		return nil, err
 	} else if len(result) == 0 {

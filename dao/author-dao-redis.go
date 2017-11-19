@@ -44,7 +44,7 @@ func (dao *AuthorDAORedis) GetAll() ([]model.Author, error) {
 	var authors []model.Author
 
 	// Collect all authors identifiers
-	keys := redisCli.Keys(AuthorIdStr + "*").Val()
+	keys := dao.redisCli.Keys(AuthorIdStr + "*").Val()
 	if len(keys) == 0 {
 		return nil, errors.New("no authors")
 	}
@@ -66,7 +66,7 @@ func (dao *AuthorDAORedis) GetAll() ([]model.Author, error) {
 func (dao *AuthorDAORedis) Upsert(author *model.Author) (*model.Author, error) {
 	if author.Id == "" {
 		// Increment number of authors
-		resultNewId, err := redisCli.Incr(AuthorStr).Result()
+		resultNewId, err := dao.redisCli.Incr(AuthorStr).Result()
 		if err != nil {
 			return nil, err
 		}
@@ -83,7 +83,7 @@ func (dao *AuthorDAORedis) Upsert(author *model.Author) (*model.Author, error) {
 
 // Delete deletes an author by its id
 func (dao *AuthorDAORedis) Delete(id string) error {
-	result, err := redisCli.Del(AuthorIdStr + id).Result()
+	result, err := dao.redisCli.Del(AuthorIdStr + id).Result()
 	if err != nil {
 		return err
 	} else if result == 0 {
@@ -96,21 +96,21 @@ func (dao *AuthorDAORedis) Delete(id string) error {
 // DeleteAll deletes all authors
 func (dao *AuthorDAORedis) DeleteAll() error {
 	// Collect all identifiers of authors
-	keys := redisCli.Keys(AuthorIdStr + "*").Val()
+	keys := dao.redisCli.Keys(AuthorIdStr + "*").Val()
 	if len(keys) == 0 { // If no authors in database
 		utils.LogWarning.Println("no authors")
 	}
 
 	for i := 0; i < len(keys); i++ {
 		// Deletion of author by identifier
-		_, err := redisCli.Del(keys[i]).Result()
+		_, err := dao.redisCli.Del(keys[i]).Result()
 		if err != nil {
 			return err
 		}
 	}
 
 	// Delete number of authors in database
-	resultDelNbAuthor := redisCli.Del(AuthorStr)
+	resultDelNbAuthor := dao.redisCli.Del(AuthorStr)
 	if resultDelNbAuthor.Err() != nil {
 		return resultDelNbAuthor.Err()
 	}
@@ -118,9 +118,9 @@ func (dao *AuthorDAORedis) DeleteAll() error {
 	return nil
 }
 
-// Check if the author exist
+// Exist checks if the author exist
 func (dao *AuthorDAORedis) Exist(id string) (bool, error) {
-	result, err := redisCli.Exists(AuthorIdStr + id).Result()
+	result, err := dao.redisCli.Exists(AuthorIdStr + id).Result()
 	if err != nil {
 		return false, err
 	} else if result == false {
@@ -137,7 +137,7 @@ func (dao *AuthorDAORedis) save(author *model.Author) (*model.Author, error) {
 	}
 
 	// Save author with songs in database
-	status := redisCli.Set(AuthorIdStr+author.Id, string(result), 0)
+	status := dao.redisCli.Set(AuthorIdStr+author.Id, string(result), 0)
 	if status.Err() != nil {
 		return nil, status.Err()
 	}
@@ -146,7 +146,7 @@ func (dao *AuthorDAORedis) save(author *model.Author) (*model.Author, error) {
 }
 
 func (dao *AuthorDAORedis) get(id string) (*model.Author, error) {
-	result, err := redisCli.Get(id).Result()
+	result, err := dao.redisCli.Get(id).Result()
 	if err != nil {
 		return nil, err
 	} else if len(result) == 0 {

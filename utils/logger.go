@@ -7,6 +7,10 @@ import (
 	"time"
 )
 
+const (
+	AppName = "bookstore"
+)
+
 var (
 	LogInfo    *log.Logger
 	LogWarning *log.Logger
@@ -26,7 +30,7 @@ func init() {
 
 	// Verification if log file exist
 	current := time.Now()
-	logFileName := logsFolder + "/go-redis-bookstore-" + current.Format("02-01-2006") + ".log"
+	logFileName := logsFolder + "/" + AppName + "-" + current.Format("02-01-2006") + ".log"
 	var logFile *os.File
 	if _, err := os.Stat(logFileName); os.IsNotExist(err) {
 		logFile, err = os.Create(logFileName)

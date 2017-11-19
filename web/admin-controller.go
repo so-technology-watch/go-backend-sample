@@ -26,7 +26,7 @@ func NewAdminController(albumDAO dao.AlbumDAO, authorDAO dao.AuthorDAO) *AdminCo
 		Prefix:    prefixAdmin,
 	}
 
-	routes := []Route{}
+	var routes []Route
 	// DeleteAll
 	routes = append(routes, Route{
 		Name:        "Delete all albums & authors",

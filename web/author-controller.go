@@ -25,7 +25,7 @@ func NewAuthorController(authorDAO dao.AuthorDAO) *AuthorController {
 		Prefix:    prefixAuthor,
 	}
 
-	routes := []Route{}
+	var routes []Route
 	// GetAll
 	routes = append(routes, Route{
 		Name:        "Get all authors",

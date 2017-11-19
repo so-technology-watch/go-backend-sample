@@ -13,10 +13,10 @@ type Song struct {
 // Validation of a song structure
 func (song Song) Valid() error {
 	if song.Number == "" {
-		return errors.New("Number of song is mandatory")
+		return errors.New("number of song is mandatory")
 	}
 	if song.Title == "" {
-		return errors.New("Title of song is mandatory")
+		return errors.New("title of song is mandatory")
 	}
 	return nil
 }

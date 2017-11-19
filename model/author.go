@@ -17,10 +17,10 @@ type Author struct {
 // Validation of an author structure
 func (author Author) Valid() error {
 	if author.Firstname == "" {
-		return errors.New("Firstname is mandatory")
+		return errors.New("firstname is mandatory")
 	}
 	if author.Lastname == "" {
-		return errors.New("Lastname is mandatory")
+		return errors.New("lastname is mandatory")
 	}
 	return nil
 }

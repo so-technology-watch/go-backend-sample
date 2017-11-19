@@ -7,7 +7,7 @@ import (
 )
 
 func TestAuthorDAORedis(t *testing.T) {
-	authorDao, _, err := dao.GetDAO(dao.DAORedis)
+	authorDao, _, err := dao.GetDAO(dao.RedisDAO, dao.DBConfigFileName)
 	if err != nil {
 		t.Error(err)
 	}

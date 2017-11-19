@@ -22,6 +22,6 @@ type AuthorDAO interface {
 	// DeleteAll deletes all authors
 	DeleteAll() error
 
-	// Check if the author exist
+	// Exist checks if the author exist
 	Exist(id string) (bool, error)
 }
