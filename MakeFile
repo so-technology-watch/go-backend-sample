@@ -79,20 +79,18 @@ dockerClean: ## Remove the docker image of the program
 	docker rmi -f xavmarc/bookstore:latest
 
 dockerUpRedis: ## Start the program with its redis
-	docker-compose -f docker-compose-redis.yml up -d
-
-dockerDownRedis: ## Stop the program and the redis and remove the containers
-	docker-compose -f docker-compose-redis.yml down
+	@export URL_DB=$(DOCKER_IP); docker-compose -f docker-compose-redis.yml up -d
 
 dockerUpMongo: ## Start the program with its mongodb
-	docker-compose -f docker-compose-mongo.yml up -d
+	@export URL_DB=$(DOCKER_IP); docker-compose -f docker-compose-mongo.yml up -d
 
-dockerDownMongo: ## Stop the program and the mongodb and remove the containers
+dockerDown: ## Stop the program and the redis and remove the containers
 	docker-compose -f docker-compose-mongo.yml down
+	docker-compose -f docker-compose-redis.yml down
 
-dockerBuildUpRedis: dockerDownRedis dockerBuild dockerUpRedis ## Stop, build and launch the docker images of the program
+dockerBuildUpRedis: dockerDown dockerBuild dockerUpRedis ## Stop, build and launch the docker images of the program
 
-dockerBuildUpMongo: dockerDownMongo dockerBuild dockerUpMongo ## Stop, build and launch the docker images of the program
+dockerBuildUpMongo: dockerDown dockerBuild dockerUpMongo ## Stop, build and launch the docker images of the program
 
 dockerWatch: ## Watch the status of the docker container
 	@watch -n1 'docker ps | grep bookstore'

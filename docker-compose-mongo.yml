@@ -3,6 +3,8 @@ bookstore-mongo:
   container_name: bookstore-mongo
   image: xavmarc/bookstore:latest
   restart: always
+  environment:
+    - URL_DB=${URL_DB}
   links:
     - mongo
   ports:
