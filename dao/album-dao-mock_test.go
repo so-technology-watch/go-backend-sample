@@ -53,8 +53,7 @@ func TestAlbumDAOMock(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	// TODO bizarre bizarre
-	if &albumToSave != oneAlbum {
+	if albumSaved != oneAlbum {
 		t.Error("Got wrong album by id")
 	}
 

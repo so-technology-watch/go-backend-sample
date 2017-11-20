@@ -1,0 +1,18 @@
+# bookstore micro-service on mongo
+bookstore-mongo:
+ container_name: bookstore-mongo
+ image: xavmarc/bookstore:latest
+ restart: always
+ links:
+   - mongo
+ ports:
+  - "8020:8020"
+ command: -port 8020 -db 1 -statd 5m
+
+# bdd mongo
+mongo:
+ container_name: bookstore-mongo-db
+ image: mongo:lastest
+ restart: always
+ ports:
+  - "27017:27017"

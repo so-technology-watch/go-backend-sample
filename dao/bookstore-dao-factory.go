@@ -7,15 +7,10 @@ import (
 	"gopkg.in/redis.v5"
 	"gopkg.in/mgo.v2"
 	"time"
+	"os"
 )
 
-// DBType lists the type of implementation the factory can return
 type DBType int
-
-type DefaultDBsConfig struct {
-	Redis DBConfig
-	Mongo DBConfig
-}
 
 type DBConfig struct {
 	Url      string
@@ -36,12 +31,24 @@ const (
 	timeout = 5 * time.Second
 	// poolSize of mongo connection pool
 	poolSize = 35
-
-	dbConfigFileName = "default-dbs-config.toml"
 )
 
 var (
 	ErrorDAONotFound = errors.New("unknown DAO type")
+
+	redisLocalConfig = DBConfig{
+		Url: os.Getenv("URL_DB"),
+		Password: "",
+		Database: "",
+		Port: "6379",
+	}
+
+	mongoLocalConfig = DBConfig{
+		Url: os.Getenv("URL_DB"),
+		Password: "",
+		Database: "bookstore",
+		Port: "27017",
+	}
 )
 
 // GetDAO returns an AlbumDAO & an AuthorDAO according to type and params
@@ -64,9 +71,7 @@ func GetDAO(daoType DBType, dbConfigFile string) (AuthorDAO, AlbumDAO, error) {
 
 // Initialize Redis database
 func initRedis(dbConfig DBConfig) *redis.Client {
-	utils.LogInfo.Println("connexion Redis")
-
-	utils.LogInfo.Println("redis " + dbConfig.Url)
+	utils.LogInfo.Println("redis connexion " + dbConfig.Url)
 
 	// Connection to the Redis database
 	redisCli := redis.NewClient(&redis.Options{
@@ -88,9 +93,7 @@ func initRedis(dbConfig DBConfig) *redis.Client {
 }
 
 func initMongo(dbConfig DBConfig) *mgo.Session {
-	utils.LogInfo.Println("mongodb connexion")
-
-	utils.LogInfo.Println("mongodb " + dbConfig.Url)
+	utils.LogInfo.Println("mongodb connexion " + dbConfig.Url)
 
 	// Connection to the Mongo database
 	mongoSession, err := mgo.DialWithTimeout("mongodb://" + dbConfig.Url + ":" + dbConfig.Port + "/" + dbConfig.Database, timeout)
@@ -112,16 +115,11 @@ func initMongo(dbConfig DBConfig) *mgo.Session {
 func getConfig(daoType DBType, dbConfigFile string) DBConfig {
 	var config DBConfig
 	if dbConfigFile == "" {
-		var defaultConfig DefaultDBsConfig
-		if _, err := toml.DecodeFile(dbConfigFileName, &defaultConfig); err != nil {
-			utils.LogError.Println("connexion parameters error :", err)
-			panic(err)
-		}
 		switch daoType {
 		case RedisDAO:
-			config = defaultConfig.Redis
+			config = redisLocalConfig
 		case MongoDAO:
-			config = defaultConfig.Mongo
+			config = mongoLocalConfig
 		}
 	} else {
 		if _, err := toml.DecodeFile(dbConfigFile, &config); err != nil {

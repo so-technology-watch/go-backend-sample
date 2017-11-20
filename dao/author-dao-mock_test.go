@@ -38,7 +38,7 @@ func TestAuthorDAOMock(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	if authorToSave != *oneAuthor {
+	if authorSaved != oneAuthor {
 		t.Error("Got wrong author by id")
 	}
 

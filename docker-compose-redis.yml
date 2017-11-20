@@ -1,0 +1,18 @@
+# bookstore micro-service redis
+ bookstore-redis:
+  container_name: bookstore-redis
+  image: xavmarc/bookstore:latest
+  restart: always
+  links:
+    - redis
+  ports:
+   - "8020:8020"
+  command: -port 8020 -db 0 -statd 5m
+
+# bdd redis
+redis:
+ container_name: bookstore-redis-db
+ image: redis:lastest
+ restart: always
+ ports:
+  - "6379:6379"

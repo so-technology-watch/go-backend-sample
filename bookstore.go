@@ -21,7 +21,7 @@ var (
 
 	port               = 8020
 	statisticsDuration = 20 * time.Second
-	db                 = 0
+	db                 = 2
 	dbConfigFile       = ""
 )
 
