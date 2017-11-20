@@ -42,7 +42,7 @@ func NewAdminController(albumDAO dao.AlbumDAO, authorDAO dao.AuthorDAO) *AdminCo
 
 // DeleteAll deletes all authors and albums with songs
 func (ctrl *AdminController) DeleteAll(w http.ResponseWriter, r *http.Request) {
-	utils.LogInfo.Println("delete all keys")
+	utils.LogInfo.Println("delete all albums & authors")
 
 	err := ctrl.authorDao.DeleteAll()
 	if err != nil {

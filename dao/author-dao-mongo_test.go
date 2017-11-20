@@ -2,9 +2,9 @@ package dao_test
 
 import (
 	"github.com/satori/go.uuid"
-	"testing"
 	"go-backend-sample/dao"
 	"go-backend-sample/model"
+	"testing"
 )
 
 func TestAuthorDAOMongo(t *testing.T) {
@@ -14,9 +14,9 @@ func TestAuthorDAOMongo(t *testing.T) {
 	}
 
 	toSave := model.Author{
-		Id:           uuid.NewV4().String(),
-		Firstname:    "Use Go",
-		Lastname:     "Let's use the Go programming language in a real project.",
+		Id:        uuid.NewV4().String(),
+		Firstname: "Test1",
+		Lastname:  "Test2",
 	}
 
 	authorSaved, err := authorDao.Upsert(&toSave)
@@ -40,8 +40,8 @@ func TestAuthorDAOMongo(t *testing.T) {
 
 	t.Log("author found one", oneAuthor)
 
-	oneAuthor.Firstname = "Use Go(lang)"
-	oneAuthor.Lastname = "Let's build a REST service in Go !"
+	oneAuthor.Firstname = "Test3"
+	oneAuthor.Lastname = "Test4"
 	chg, err := authorDao.Upsert(oneAuthor)
 	if err != nil {
 		t.Error(err)

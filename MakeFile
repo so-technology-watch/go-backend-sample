@@ -6,9 +6,6 @@
 #        ENV VARIABLE
 # -----------------------------------------------------------------
 
-# go env vars
-GO=$(firstword $(subst :, ,$(GOPATH)))
-# list of pkgs for the project without vendor
 PKGS=$(shell go list ./... | grep -v /vendor/)
 DOCKER_IP=$(shell if [ -z "$(DOCKER_MACHINE_NAME)" ]; then echo 'localhost'; else docker-machine ip $(DOCKER_MACHINE_NAME); fi)
 
@@ -16,7 +13,6 @@ DOCKER_IP=$(shell if [ -z "$(DOCKER_MACHINE_NAME)" ]; then echo 'localhost'; els
 #        Version
 # -----------------------------------------------------------------
 
-# version
 VERSION=0.0.1
 BUILDDATE=$(shell date -u '+%s')
 BUILDHASH=$(shell git rev-parse --short HEAD)
@@ -36,18 +32,10 @@ clean: ## Clean the project
 	@rm -Rf .tmp *.log *.out *.mem *.test build/
 
 build: format ## Build all libraries and binaries
-	@go build -v $(VERSION_FLAG) -o $(GO)/bin/bookstore bookstore.go
+	@go build -v $(VERSION_FLAG) -o ../../bin/bookstore bookstore.go
 
 format: ## Format all packages
 	@go fmt $(PKGS)
-
-lint: ## Lint all packages
-	@golint dao/...
-	@golint model/...
-	@golint web/...
-	@golint utils/...
-	@golint ./.
-	@go vet $(PKGS)
 
 teardownTest: ## Tear down mongodb and redis for integration tests
 	@$(shell docker kill bookstore-mongo-test 2&>/dev/null 1&>/dev/null)
@@ -84,21 +72,23 @@ dockerUpRedis: ## Start the program with its redis
 dockerUpMongo: ## Start the program with its mongodb
 	@export URL_DB=$(DOCKER_IP); docker-compose -f docker-compose-mongo.yml up -d
 
-dockerDown: ## Stop the program and the redis and remove the containers
-	docker-compose -f docker-compose-mongo.yml down
-	docker-compose -f docker-compose-redis.yml down
+dockerDownRedis: ## Stop the program and the redis and remove the containers
+	@export URL_DB=$(DOCKER_IP); docker-compose -f docker-compose-redis.yml down
 
-dockerBuildUpRedis: dockerDown dockerBuild dockerUpRedis ## Stop, build and launch the docker images of the program
+dockerDownMongo: ## Stop the program and the redis and remove the containers
+	@export URL_DB=$(DOCKER_IP); docker-compose -f docker-compose-mongo.yml down
 
-dockerBuildUpMongo: dockerDown dockerBuild dockerUpMongo ## Stop, build and launch the docker images of the program
+dockerBuildUpRedis: dockerDownRedis dockerBuild dockerUpRedis ## Stop, build and launch the docker images of the program
+
+dockerBuildUpMongo: dockerDownMongo dockerBuild dockerUpMongo ## Stop, build and launch the docker images of the program
 
 dockerWatch: ## Watch the status of the docker container
 	@watch -n1 'docker ps | grep bookstore'
 
 dockerLogsRedis: ## Print the logs of the container
-	docker-compose -f docker-compose-redis.yml logs -f
+	@export URL_DB=$(DOCKER_IP); docker-compose -f docker-compose-redis.yml logs -f
 
 dockerLogsMongo: ## Print the logs of the container
-	docker-compose -f docker-compose-mongo.yml logs -f
+	@export URL_DB=$(DOCKER_IP); docker-compose -f docker-compose-mongo.yml logs -f
 
 .PHONY: all test clean teardownTest setupTest

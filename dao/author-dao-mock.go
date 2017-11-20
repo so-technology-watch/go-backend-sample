@@ -2,8 +2,8 @@ package dao
 
 import (
 	"errors"
-	"go-backend-sample/model"
 	"github.com/satori/go.uuid"
+	"go-backend-sample/model"
 )
 
 // compilation time interface check
@@ -11,9 +11,9 @@ var _ AuthorDAO = (*AuthorDAOMock)(nil)
 
 // MockedAuthor is the author returned by this mocked interface
 var MockedAuthor = model.Author{
-	Id:           "1",
-	Firstname:    "TestMock",
-	Lastname:  	  "TestMock",
+	Id:        "1",
+	Firstname: "TestMock",
+	Lastname:  "TestMock",
 }
 
 // AuthorDAOMock is the mocked implementation of the AuthorDAOMock
@@ -94,4 +94,3 @@ func (s *AuthorDAOMock) get(id string) *model.Author {
 	author := s.storage[id]
 	return author
 }
-

@@ -4,10 +4,10 @@ import (
 	"errors"
 	"github.com/BurntSushi/toml"
 	"go-backend-sample/utils"
-	"gopkg.in/redis.v5"
 	"gopkg.in/mgo.v2"
-	"time"
+	"gopkg.in/redis.v5"
 	"os"
+	"time"
 )
 
 type DBType int
@@ -37,17 +37,17 @@ var (
 	ErrorDAONotFound = errors.New("unknown DAO type")
 
 	redisLocalConfig = DBConfig{
-		Url: os.Getenv("URL_DB"),
+		Url:      os.Getenv("URL_DB"),
 		Password: "",
 		Database: "",
-		Port: "6379",
+		Port:     "6379",
 	}
 
 	mongoLocalConfig = DBConfig{
-		Url: os.Getenv("URL_DB"),
+		Url:      os.Getenv("URL_DB"),
 		Password: "",
 		Database: "bookstore",
-		Port: "27017",
+		Port:     "27017",
 	}
 )
 
@@ -96,7 +96,7 @@ func initMongo(dbConfig DBConfig) *mgo.Session {
 	utils.LogInfo.Println("mongodb connexion " + dbConfig.Url)
 
 	// Connection to the Mongo database
-	mongoSession, err := mgo.DialWithTimeout("mongodb://" + dbConfig.Url + ":" + dbConfig.Port + "/" + dbConfig.Database, timeout)
+	mongoSession, err := mgo.DialWithTimeout("mongodb://"+dbConfig.Url+":"+dbConfig.Port+"/"+dbConfig.Database, timeout)
 	if err != nil {
 		utils.LogError.Println("mongodb connexion error :", err.Error())
 		panic(err)

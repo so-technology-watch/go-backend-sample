@@ -26,6 +26,12 @@
   version = "v1.1.0"
 
 [[projects]]
+  name = "github.com/urfave/negroni"
+  packages = ["."]
+  revision = "5dbbc83f748fc3ad38585842b0aedab546d0ea1e"
+  version = "v0.3.0"
+
+[[projects]]
   branch = "v2"
   name = "gopkg.in/mgo.v2"
   packages = [".","bson","internal/json","internal/sasl","internal/scram"]
@@ -46,6 +52,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "3fd62b00372e4146280a2256b229251d51deb481c394f01a5ecaecf63f9d6bbb"
+  inputs-digest = "46b582868ef2bfde5e5a7d9a051a3173252d519f2a4ca7d4efb229903f8db5f2"
   solver-name = "gps-cdcl"
   solver-version = 1

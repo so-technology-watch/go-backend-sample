@@ -2,8 +2,8 @@ package dao
 
 import (
 	"errors"
-	"go-backend-sample/model"
 	"github.com/satori/go.uuid"
+	"go-backend-sample/model"
 )
 
 // compilation time interface check
@@ -17,12 +17,13 @@ var MockSong2 = model.Song{
 	Title:  "Test2",
 	Number: "2",
 }
+
 // MockedAlbum is the album returned by this mocked interface
 var MockedAlbum = model.Album{
-	Id:         "1",
-	Title:    	"TestMock",
-	Description:"TestMock",
-	AuthorId:	"1",
+	Id:          "1",
+	Title:       "TestMock",
+	Description: "TestMock",
+	AuthorId:    "1",
 }
 
 // AlbumDAOMock is the mocked implementation of the AlbumDAOMock
@@ -119,4 +120,3 @@ func (s *AlbumDAOMock) get(id string) *model.Album {
 	album := s.storage[id]
 	return album
 }
-

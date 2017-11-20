@@ -2,11 +2,11 @@ package dao
 
 import (
 	"errors"
-	"gopkg.in/mgo.v2"
-	"gopkg.in/mgo.v2/bson"
+	"github.com/satori/go.uuid"
 	"go-backend-sample/model"
 	"go-backend-sample/utils"
-	"github.com/satori/go.uuid"
+	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
 // compilation time interface check
@@ -19,7 +19,7 @@ var (
 
 const (
 	collectionAuthors = "authors"
-	indexAuthor      = "id"
+	indexAuthor       = "id"
 )
 
 // AuthorDAOMongo is the mongo implementation of the AuthorDAO
@@ -39,7 +39,7 @@ func NewAuthorDAOMongo(session *mgo.Session) AuthorDAO {
 	})
 
 	if err != nil {
-		utils.LogError.Println("parametres de connexion Mongo error :", err)
+		utils.LogError.Println("mongodb connexion error :", err)
 		panic(err)
 	}
 

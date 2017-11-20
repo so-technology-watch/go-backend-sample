@@ -84,6 +84,7 @@ func (ctrl *AuthorController) GetAuthors(w http.ResponseWriter, r *http.Request)
 // Get retrieve an author by id
 func (ctrl *AuthorController) GetAuthor(w http.ResponseWriter, r *http.Request) {
 	authorId := ParamAsString("id", r)
+	utils.LogInfo.Println("author : ", authorId)
 
 	author, err := ctrl.authorDao.Get(authorId)
 	if err != nil {
@@ -98,6 +99,7 @@ func (ctrl *AuthorController) GetAuthor(w http.ResponseWriter, r *http.Request) 
 
 // Create create an author
 func (ctrl *AuthorController) CreateAuthor(w http.ResponseWriter, r *http.Request) {
+	utils.LogInfo.Println("create author")
 	author := &model.Author{}
 	utils.LogInfo.Println(r.Body)
 	err := GetJSONContent(author, r)
@@ -128,6 +130,8 @@ func (ctrl *AuthorController) UpdateAuthor(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
+	utils.LogInfo.Println("update author : ", author.Id)
+
 	authorExist, err := ctrl.authorDao.Exist(author.Id)
 	if err != nil {
 		utils.LogError.Println(err)
@@ -152,6 +156,7 @@ func (ctrl *AuthorController) UpdateAuthor(w http.ResponseWriter, r *http.Reques
 // Delete delete an entity by id
 func (ctrl *AuthorController) DeleteAuthor(w http.ResponseWriter, r *http.Request) {
 	authorId := ParamAsString("id", r)
+	utils.LogInfo.Println("delete author : ", authorId)
 
 	err := ctrl.authorDao.Delete(authorId)
 	if err != nil {
@@ -160,6 +165,6 @@ func (ctrl *AuthorController) DeleteAuthor(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	utils.LogInfo.Println("deleted Album : ", authorId)
+	utils.LogInfo.Println("deleted author : ", authorId)
 	SendJSONWithHTTPCode(w, nil, http.StatusNoContent)
 }

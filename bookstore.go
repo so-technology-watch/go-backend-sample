@@ -1,14 +1,14 @@
 package main
 
 import (
+	"github.com/urfave/negroni"
 	"go-backend-sample/dao"
 	"go-backend-sample/utils"
 	"go-backend-sample/web"
-	"net/http"
-	"time"
 	"gopkg.in/urfave/cli.v1"
-	"strconv"
 	"os"
+	"strconv"
+	"time"
 )
 
 var (
@@ -68,12 +68,20 @@ func main() {
 	}
 
 	// main action
-	// sub action are also possible
 	app.Action = func(c *cli.Context) error {
+
 		authorDAO, albumDAO, err := dao.GetDAO(dao.DBType(db), dbConfigFile)
 		if err != nil {
 			utils.LogError.Println("unable to build the required DAO")
 		}
+
+		webServer := negroni.New()
+
+		recovery := negroni.NewRecovery()
+		recovery.PrintStack = false
+		webServer.Use(recovery)
+
+		// add middleware n.Use()
 
 		authorCtrl := web.NewAuthorController(authorDAO)
 		albumCtrl := web.NewAlbumController(albumDAO, authorDAO)
@@ -81,7 +89,9 @@ func main() {
 
 		router := web.NewRouter(authorCtrl, albumCtrl, adminCtrl)
 
-		utils.LogError.Println(http.ListenAndServe(":" + strconv.Itoa(port), router))
+		webServer.UseHandler(router)
+
+		webServer.Run(":" + strconv.Itoa(port))
 
 		return nil
 	}
@@ -92,4 +102,3 @@ func main() {
 		utils.LogError.Println("run error %q\n", err)
 	}
 }
-

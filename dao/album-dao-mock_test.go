@@ -1,9 +1,9 @@
 package dao_test
 
 import (
-	"testing"
 	"go-backend-sample/dao"
 	"go-backend-sample/model"
+	"testing"
 )
 
 func TestAlbumDAOMock(t *testing.T) {
@@ -27,7 +27,7 @@ func TestAlbumDAOMock(t *testing.T) {
 	songsToSave = append(songsToSave, song2ToSave)
 
 	albumToSave := model.Album{
-		Id: 		 "1",
+		Id:          "1",
 		Title:       "Test",
 		Description: "Description Test",
 		AuthorId:    "1",
@@ -46,7 +46,7 @@ func TestAlbumDAOMock(t *testing.T) {
 		t.Error(err)
 	}
 	if len(albums) != 1 {
-		t.Errorf("Expected 1 albums, got %d", len(albums))
+		t.Errorf("expected 1 albums, got %d", len(albums))
 	}
 
 	oneAlbum, err := albumDaoMock.Get(albumToSave.Id)
@@ -54,7 +54,7 @@ func TestAlbumDAOMock(t *testing.T) {
 		t.Error(err)
 	}
 	if albumSaved != oneAlbum {
-		t.Error("Got wrong album by id")
+		t.Error("got wrong album by id")
 	}
 
 	err = albumDaoMock.Delete(oneAlbum.Id)
@@ -64,6 +64,6 @@ func TestAlbumDAOMock(t *testing.T) {
 
 	oneAlbum, err = albumDaoMock.Get(oneAlbum.Id)
 	if err == nil {
-		t.Error("Album should have been deleted", oneAlbum)
+		t.Error("album should have been deleted", oneAlbum)
 	}
 }

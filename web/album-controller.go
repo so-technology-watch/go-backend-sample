@@ -92,8 +92,8 @@ func (ctrl *AlbumController) GetAlbums(w http.ResponseWriter, r *http.Request) {
 
 // GetAlbumsByAuthor retrieve albums by author id
 func (ctrl *AlbumController) GetAlbumsByAuthor(w http.ResponseWriter, r *http.Request) {
-	utils.LogInfo.Println("list albums")
 	authorId := ParamAsString("authorId", r)
+	utils.LogInfo.Println("list albums of author : ", authorId)
 
 	albums, err := ctrl.albumDao.GetByAuthor(authorId)
 	if err != nil {
@@ -108,6 +108,7 @@ func (ctrl *AlbumController) GetAlbumsByAuthor(w http.ResponseWriter, r *http.Re
 // GetAlbum retrieve an album by id
 func (ctrl *AlbumController) GetAlbum(w http.ResponseWriter, r *http.Request) {
 	albumId := ParamAsString("id", r)
+	utils.LogInfo.Println("album : ", albumId)
 
 	album, err := ctrl.albumDao.Get(albumId)
 	if err != nil {
@@ -122,6 +123,7 @@ func (ctrl *AlbumController) GetAlbum(w http.ResponseWriter, r *http.Request) {
 
 // CreateAlbum create an album
 func (ctrl *AlbumController) CreateAlbum(w http.ResponseWriter, r *http.Request) {
+	utils.LogInfo.Println("create album")
 	album := &model.Album{}
 	err := GetJSONContent(album, r)
 	if err != nil {
@@ -161,6 +163,8 @@ func (ctrl *AlbumController) UpdateAlbum(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	utils.LogInfo.Println("update album : ", album.Id)
+
 	authorExist, err := ctrl.authorDao.Exist(album.AuthorId)
 	if err != nil {
 		utils.LogError.Println(err)
@@ -195,6 +199,7 @@ func (ctrl *AlbumController) UpdateAlbum(w http.ResponseWriter, r *http.Request)
 // DeleteAlbum delete an album by id
 func (ctrl *AlbumController) DeleteAlbum(w http.ResponseWriter, r *http.Request) {
 	albumId := ParamAsString("id", r)
+	utils.LogInfo.Println("delete album : ", albumId)
 
 	err := ctrl.albumDao.Delete(albumId)
 	if err != nil {
@@ -203,6 +208,6 @@ func (ctrl *AlbumController) DeleteAlbum(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	utils.LogInfo.Println("deleted Album : ", albumId)
+	utils.LogInfo.Println("deleted album : ", albumId)
 	SendJSONWithHTTPCode(w, nil, http.StatusNoContent)
 }

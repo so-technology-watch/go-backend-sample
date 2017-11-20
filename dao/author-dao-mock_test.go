@@ -1,9 +1,9 @@
 package dao_test
 
 import (
-	"testing"
 	"go-backend-sample/dao"
 	"go-backend-sample/model"
+	"testing"
 )
 
 func TestAuthorDAOMock(t *testing.T) {
@@ -14,9 +14,9 @@ func TestAuthorDAOMock(t *testing.T) {
 	}
 
 	authorToSave := model.Author{
-		Id:           "1",
-		Firstname:    "TestMock",
-		Lastname:  	  "TestMock",
+		Id:        "1",
+		Firstname: "TestMock",
+		Lastname:  "TestMock",
 	}
 
 	authorSaved, err := authorDaoMock.Upsert(&authorToSave)

@@ -2,9 +2,9 @@ package dao_test
 
 import (
 	"github.com/satori/go.uuid"
-	"testing"
 	"go-backend-sample/dao"
 	"go-backend-sample/model"
+	"testing"
 )
 
 func TestAlbumDAOMongo(t *testing.T) {
@@ -14,9 +14,9 @@ func TestAlbumDAOMongo(t *testing.T) {
 	}
 
 	authorToSave := model.Author{
-		Id:           uuid.NewV4().String(),
-		Firstname:    "Use Go",
-		Lastname:     "Let's use the Go programming language in a real project.",
+		Id:        uuid.NewV4().String(),
+		Firstname: "Test1",
+		Lastname:  "Test2",
 	}
 
 	authorSaved, err := authorDao.Upsert(&authorToSave)
@@ -38,7 +38,7 @@ func TestAlbumDAOMongo(t *testing.T) {
 	songsToSave = append(songsToSave, song2ToSave)
 
 	albumToSave := model.Album{
-		Id: 		 uuid.NewV4().String(),
+		Id:          uuid.NewV4().String(),
 		Title:       "Test",
 		Description: "Description Test",
 		AuthorId:    authorSaved.Id,
@@ -66,8 +66,8 @@ func TestAlbumDAOMongo(t *testing.T) {
 
 	t.Log("album found one", oneAlbum)
 
-	oneAlbum.Title = "Use Go(lang)"
-	oneAlbum.Description = "Let's build a REST service in Go !"
+	oneAlbum.Title = "Test2"
+	oneAlbum.Description = "Description Test2"
 	chg, err := albumDao.Upsert(oneAlbum)
 	if err != nil {
 		t.Error(err)
