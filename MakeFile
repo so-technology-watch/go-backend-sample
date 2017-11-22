@@ -29,7 +29,7 @@ help: ## Print this message
 
 clean: ## Clean the project
 	@go clean
-	@rm -Rf .tmp *.log *.out *.mem *.test build/
+	@rm -Rf .tmp *.log build/
 
 build: format ## Build all libraries and binaries
 	@go build -v $(VERSION_FLAG) -o ../../bin/bookstore bookstore.go

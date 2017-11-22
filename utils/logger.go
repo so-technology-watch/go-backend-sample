@@ -1,10 +1,8 @@
 package utils
 
 import (
-	"io"
 	"log"
 	"os"
-	"time"
 )
 
 const (
@@ -19,43 +17,15 @@ var (
 
 // Initialize the logger
 func init() {
-	// Verification if folder "logs" exist
-	logsFolder := "logs"
-	if _, err := os.Stat(logsFolder); os.IsNotExist(err) {
-		err := os.Mkdir(logsFolder, os.ModeDir)
-		if err != nil {
-			log.Fatalln("failed to create logs folder", os.Stdout, ":", err)
-		}
-	}
-
-	// Verification if log file exist
-	current := time.Now()
-	logFileName := logsFolder + "/" + AppName + "-" + current.Format("02-01-2006") + ".log"
-	var logFile *os.File
-	if _, err := os.Stat(logFileName); os.IsNotExist(err) {
-		logFile, err = os.Create(logFileName)
-		if err != nil {
-			log.Fatalln("failed to create log file", os.Stdout, ":", err)
-		}
-	} else {
-		logFile, err = os.OpenFile(logFileName, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
-		if err != nil {
-			log.Fatalln("failed to open log file", os.Stdout, ":", err)
-		}
-	}
-
-	multiOut := io.MultiWriter(logFile, os.Stdout)
-	multiErr := io.MultiWriter(logFile, os.Stderr)
-
-	LogInfo = log.New(multiOut,
+	LogInfo = log.New(os.Stdout,
 		"INFO: ",
 		log.Ldate|log.Ltime|log.Lshortfile)
 
-	LogWarning = log.New(multiOut,
+	LogWarning = log.New(os.Stdout,
 		"WARNING: ",
 		log.Ldate|log.Ltime|log.Lshortfile)
 
-	LogError = log.New(multiErr,
+	LogError = log.New(os.Stderr,
 		"ERROR: ",
 		log.Ldate|log.Ltime|log.Lshortfile)
 }
