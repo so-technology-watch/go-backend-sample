@@ -2,8 +2,8 @@ package web
 
 import (
 	"go-backend-sample/dao"
-	"go-backend-sample/utils"
 	"net/http"
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -42,18 +42,18 @@ func NewAdminController(albumDAO dao.AlbumDAO, authorDAO dao.AuthorDAO) *AdminCo
 
 // DeleteAll deletes all authors and albums with songs
 func (ctrl *AdminController) DeleteAll(w http.ResponseWriter, r *http.Request) {
-	utils.LogInfo.Println("delete all albums & authors")
+	logrus.Println("delete all albums & authors")
 
 	err := ctrl.authorDao.DeleteAll()
 	if err != nil {
-		utils.LogError.Println(err)
+		logrus.Error(err)
 		SendJSONError(w, err.Error(), http.StatusNotFound)
 		return
 	}
 
 	err = ctrl.albumDao.DeleteAll()
 	if err != nil {
-		utils.LogError.Println(err)
+		logrus.Error(err)
 		SendJSONError(w, err.Error(), http.StatusNotFound)
 		return
 	}

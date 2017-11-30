@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"log"
+	"github.com/sirupsen/logrus"
 	"os"
 )
 
@@ -9,23 +9,23 @@ const (
 	AppName = "bookstore"
 )
 
-var (
-	LogInfo    *log.Logger
-	LogWarning *log.Logger
-	LogError   *log.Logger
-)
+// Initialize logger
+func InitLog(logLevel string) error {
 
-// Initialize the logger
-func init() {
-	LogInfo = log.New(os.Stdout,
-		"INFO: ",
-		log.Ldate|log.Ltime|log.Lshortfile)
+	logrus.SetFormatter(&logrus.TextFormatter{
+		ForceColors:   true,
+		FullTimestamp: true,
+	})
 
-	LogWarning = log.New(os.Stdout,
-		"WARNING: ",
-		log.Ldate|log.Ltime|log.Lshortfile)
+	logrus.SetOutput(os.Stdout)
 
-	LogError = log.New(os.Stderr,
-		"ERROR: ",
-		log.Ldate|log.Ltime|log.Lshortfile)
+	level, err := logrus.ParseLevel(logLevel)
+
+	if err != nil {
+		logrus.SetLevel(logrus.DebugLevel)
+		return err
+	}
+
+	logrus.SetLevel(level)
+	return nil
 }

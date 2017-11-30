@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/urfave/negroni"
+	"github.com/sirupsen/logrus"
 	"go-backend-sample/dao"
 	"go-backend-sample/utils"
 	"go-backend-sample/web"
@@ -21,6 +22,7 @@ var (
 
 	port               = 8020
 	statisticsDuration = 20 * time.Second
+	logLevel           = "warning"
 	db                 = 2
 	dbConfigFile       = ""
 )
@@ -53,6 +55,12 @@ func main() {
 			Usage:       "Set the statistics accumulation duration (ex : 1h, 2h30m, 30s, 300ms)",
 			Destination: &statisticsDuration,
 		},
+		cli.StringFlag{
+			Value:       logLevel,
+			Name:        "logl, l",
+			Usage:       "Set the output log level (debug, info, warning, error)",
+			Destination: &logLevel,
+		},
 		cli.IntFlag{
 			Value:       db,
 			Name:        "db",
@@ -70,9 +78,15 @@ func main() {
 	// main action
 	app.Action = func(c *cli.Context) error {
 
+		// init log options from command line params
+		err := utils.InitLog(logLevel)
+		if err != nil {
+			logrus.Warn("error setting log level, using debug as default")
+		}
+
 		authorDAO, albumDAO, err := dao.GetDAO(dao.DBType(db), dbConfigFile)
 		if err != nil {
-			utils.LogError.Println("unable to build the required DAO")
+			logrus.WithField("db", db).WithField("dbConfigFile", dbConfigFile).Error("unable to build the required DAO")
 		}
 
 		webServer := negroni.New()
@@ -99,6 +113,6 @@ func main() {
 	// run the app
 	err = app.Run(os.Args)
 	if err != nil {
-		utils.LogError.Println("run error %q\n", err)
+		logrus.Error("run error %q\n", err)
 	}
 }

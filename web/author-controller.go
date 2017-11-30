@@ -3,8 +3,8 @@ package web
 import (
 	"go-backend-sample/dao"
 	"go-backend-sample/model"
-	"go-backend-sample/utils"
 	"net/http"
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -69,11 +69,11 @@ func NewAuthorController(authorDAO dao.AuthorDAO) *AuthorController {
 
 // GetAll retrieve all authors
 func (ctrl *AuthorController) GetAuthors(w http.ResponseWriter, r *http.Request) {
-	utils.LogInfo.Println("list authors")
+	logrus.Println("list authors")
 
 	authors, err := ctrl.authorDao.GetAll()
 	if err != nil {
-		utils.LogError.Println(err)
+		logrus.Error(err)
 		SendJSONError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -84,39 +84,39 @@ func (ctrl *AuthorController) GetAuthors(w http.ResponseWriter, r *http.Request)
 // Get retrieve an author by id
 func (ctrl *AuthorController) GetAuthor(w http.ResponseWriter, r *http.Request) {
 	authorId := ParamAsString("id", r)
-	utils.LogInfo.Println("author : ", authorId)
+	logrus.Println("author : ", authorId)
 
 	author, err := ctrl.authorDao.Get(authorId)
 	if err != nil {
-		utils.LogError.Println(err)
+		logrus.Error(err)
 		SendJSONError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	utils.LogInfo.Println("author : ", author)
+	logrus.Println("author : ", author)
 	SendJSONOk(w, author)
 }
 
 // Create create an author
 func (ctrl *AuthorController) CreateAuthor(w http.ResponseWriter, r *http.Request) {
-	utils.LogInfo.Println("create author")
+	logrus.Println("create author")
 	author := &model.Author{}
-	utils.LogInfo.Println(r.Body)
+	logrus.Println(r.Body)
 	err := GetJSONContent(author, r)
 	if err != nil {
-		utils.LogError.Println(err)
+		logrus.Error(err)
 		SendJSONError(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	author, err = ctrl.authorDao.Upsert(author)
 	if err != nil {
-		utils.LogError.Println(err)
+		logrus.Error(err)
 		SendJSONError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	utils.LogInfo.Println("author : ", author)
+	logrus.Println("author : ", author)
 	SendJSONWithHTTPCode(w, author, http.StatusCreated)
 }
 
@@ -125,16 +125,16 @@ func (ctrl *AuthorController) UpdateAuthor(w http.ResponseWriter, r *http.Reques
 	author := &model.Author{}
 	err := GetJSONContent(author, r)
 	if err != nil {
-		utils.LogError.Println(err)
+		logrus.Error(err)
 		SendJSONError(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	utils.LogInfo.Println("update author : ", author.Id)
+	logrus.Println("update author : ", author.Id)
 
 	authorExist, err := ctrl.authorDao.Exist(author.Id)
 	if err != nil {
-		utils.LogError.Println(err)
+		logrus.Error(err)
 		SendJSONError(w, err.Error(), http.StatusNotFound)
 		return
 	} else if authorExist == false {
@@ -144,27 +144,27 @@ func (ctrl *AuthorController) UpdateAuthor(w http.ResponseWriter, r *http.Reques
 
 	author, err = ctrl.authorDao.Upsert(author)
 	if err != nil {
-		utils.LogError.Println(err)
+		logrus.Error(err)
 		SendJSONError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	utils.LogInfo.Println("author : ", author)
+	logrus.Println("author : ", author)
 	SendJSONOk(w, author)
 }
 
 // Delete delete an entity by id
 func (ctrl *AuthorController) DeleteAuthor(w http.ResponseWriter, r *http.Request) {
 	authorId := ParamAsString("id", r)
-	utils.LogInfo.Println("delete author : ", authorId)
+	logrus.Println("delete author : ", authorId)
 
 	err := ctrl.authorDao.Delete(authorId)
 	if err != nil {
-		utils.LogError.Println(err)
+		logrus.Error(err)
 		SendJSONError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	utils.LogInfo.Println("deleted author : ", authorId)
+	logrus.Println("deleted author : ", authorId)
 	SendJSONWithHTTPCode(w, nil, http.StatusNoContent)
 }

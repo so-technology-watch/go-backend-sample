@@ -4,9 +4,9 @@ import (
 	"errors"
 	"github.com/satori/go.uuid"
 	"go-backend-sample/model"
-	"go-backend-sample/utils"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
+	"github.com/sirupsen/logrus"
 )
 
 // compilation time interface check
@@ -39,7 +39,7 @@ func NewAuthorDAOMongo(session *mgo.Session) AuthorDAO {
 	})
 
 	if err != nil {
-		utils.LogError.Println("mongodb connexion error :", err)
+		logrus.Error("mongodb connexion error :", err)
 		panic(err)
 	}
 

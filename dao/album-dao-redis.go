@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"go-backend-sample/model"
-	"go-backend-sample/utils"
 	"gopkg.in/redis.v5"
 	"strconv"
+	"github.com/sirupsen/logrus"
 )
 
 // compilation time interface check
@@ -127,7 +127,7 @@ func (dao *AlbumDAORedis) DeleteAll() error {
 	// Collect all identifiers of albums
 	keys := dao.redisCli.Keys(AlbumIdStr + "*").Val()
 	if len(keys) == 0 { // If no albums in database
-		utils.LogWarning.Println("no albums")
+		logrus.Warn("no albums")
 	}
 
 	for i := 0; i < len(keys); i++ {

@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"go-backend-sample/model"
-	"go-backend-sample/utils"
 	"gopkg.in/redis.v5"
 	"strconv"
+	"github.com/sirupsen/logrus"
 )
 
 // compilation time interface check
@@ -98,7 +98,7 @@ func (dao *AuthorDAORedis) DeleteAll() error {
 	// Collect all identifiers of authors
 	keys := dao.redisCli.Keys(AuthorIdStr + "*").Val()
 	if len(keys) == 0 { // If no authors in database
-		utils.LogWarning.Println("no authors")
+		logrus.Warn("no authors")
 	}
 
 	for i := 0; i < len(keys); i++ {

@@ -3,8 +3,8 @@ package web
 import (
 	"go-backend-sample/dao"
 	"go-backend-sample/model"
-	"go-backend-sample/utils"
 	"net/http"
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -78,11 +78,11 @@ func NewAlbumController(albumDAO dao.AlbumDAO, authorDAO dao.AuthorDAO) *AlbumCo
 
 // GetAlbums retrieve all albums
 func (ctrl *AlbumController) GetAlbums(w http.ResponseWriter, r *http.Request) {
-	utils.LogInfo.Println("list albums")
+	logrus.Println("list albums")
 
 	albums, err := ctrl.albumDao.GetAll()
 	if err != nil {
-		utils.LogError.Println(err)
+		logrus.Error(err)
 		SendJSONError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -93,11 +93,11 @@ func (ctrl *AlbumController) GetAlbums(w http.ResponseWriter, r *http.Request) {
 // GetAlbumsByAuthor retrieve albums by author id
 func (ctrl *AlbumController) GetAlbumsByAuthor(w http.ResponseWriter, r *http.Request) {
 	authorId := ParamAsString("authorId", r)
-	utils.LogInfo.Println("list albums of author : ", authorId)
+	logrus.Println("list albums of author : ", authorId)
 
 	albums, err := ctrl.albumDao.GetByAuthor(authorId)
 	if err != nil {
-		utils.LogError.Println(err)
+		logrus.Error(err)
 		SendJSONError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -108,33 +108,33 @@ func (ctrl *AlbumController) GetAlbumsByAuthor(w http.ResponseWriter, r *http.Re
 // GetAlbum retrieve an album by id
 func (ctrl *AlbumController) GetAlbum(w http.ResponseWriter, r *http.Request) {
 	albumId := ParamAsString("id", r)
-	utils.LogInfo.Println("album : ", albumId)
+	logrus.Println("album : ", albumId)
 
 	album, err := ctrl.albumDao.Get(albumId)
 	if err != nil {
-		utils.LogError.Println(err)
+		logrus.Error(err)
 		SendJSONError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	utils.LogInfo.Println("album : ", album)
+	logrus.Println("album : ", album)
 	SendJSONOk(w, album)
 }
 
 // CreateAlbum create an album
 func (ctrl *AlbumController) CreateAlbum(w http.ResponseWriter, r *http.Request) {
-	utils.LogInfo.Println("create album")
+	logrus.Println("create album")
 	album := &model.Album{}
 	err := GetJSONContent(album, r)
 	if err != nil {
-		utils.LogError.Println(err)
+		logrus.Error(err)
 		SendJSONError(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	authorExist, err := ctrl.authorDao.Exist(album.AuthorId)
 	if err != nil {
-		utils.LogError.Println(err)
+		logrus.Error(err)
 		SendJSONError(w, err.Error(), http.StatusNotFound)
 		return
 	} else if authorExist == false {
@@ -144,12 +144,12 @@ func (ctrl *AlbumController) CreateAlbum(w http.ResponseWriter, r *http.Request)
 
 	album, err = ctrl.albumDao.Upsert(album)
 	if err != nil {
-		utils.LogError.Println(err)
+		logrus.Error(err)
 		SendJSONError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	utils.LogInfo.Println("album : ", album)
+	logrus.Println("album : ", album)
 	SendJSONWithHTTPCode(w, album, http.StatusCreated)
 }
 
@@ -158,16 +158,16 @@ func (ctrl *AlbumController) UpdateAlbum(w http.ResponseWriter, r *http.Request)
 	album := &model.Album{}
 	err := GetJSONContent(album, r)
 	if err != nil {
-		utils.LogError.Println(err)
+		logrus.Error(err)
 		SendJSONError(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	utils.LogInfo.Println("update album : ", album.Id)
+	logrus.Println("update album : ", album.Id)
 
 	authorExist, err := ctrl.authorDao.Exist(album.AuthorId)
 	if err != nil {
-		utils.LogError.Println(err)
+		logrus.Error(err)
 		SendJSONError(w, err.Error(), http.StatusNotFound)
 		return
 	} else if authorExist == false {
@@ -177,7 +177,7 @@ func (ctrl *AlbumController) UpdateAlbum(w http.ResponseWriter, r *http.Request)
 
 	albumExist, err := ctrl.albumDao.Exist(album.Id)
 	if err != nil {
-		utils.LogError.Println(err)
+		logrus.Error(err)
 		SendJSONError(w, err.Error(), http.StatusNotFound)
 		return
 	} else if albumExist == false {
@@ -187,27 +187,27 @@ func (ctrl *AlbumController) UpdateAlbum(w http.ResponseWriter, r *http.Request)
 
 	album, err = ctrl.albumDao.Upsert(album)
 	if err != nil {
-		utils.LogError.Println(err)
+		logrus.Error(err)
 		SendJSONError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	utils.LogInfo.Println("album : ", album)
+	logrus.Println("album : ", album)
 	SendJSONOk(w, album)
 }
 
 // DeleteAlbum delete an album by id
 func (ctrl *AlbumController) DeleteAlbum(w http.ResponseWriter, r *http.Request) {
 	albumId := ParamAsString("id", r)
-	utils.LogInfo.Println("delete album : ", albumId)
+	logrus.Println("delete album : ", albumId)
 
 	err := ctrl.albumDao.Delete(albumId)
 	if err != nil {
-		utils.LogError.Println(err)
+		logrus.Error(err)
 		SendJSONError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	utils.LogInfo.Println("deleted album : ", albumId)
+	logrus.Println("deleted album : ", albumId)
 	SendJSONWithHTTPCode(w, nil, http.StatusNoContent)
 }

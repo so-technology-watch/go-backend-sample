@@ -3,11 +3,11 @@ package dao
 import (
 	"errors"
 	"github.com/BurntSushi/toml"
-	"go-backend-sample/utils"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/redis.v5"
 	"os"
 	"time"
+	"github.com/sirupsen/logrus"
 )
 
 type DBType int
@@ -71,7 +71,7 @@ func GetDAO(daoType DBType, dbConfigFile string) (AuthorDAO, AlbumDAO, error) {
 
 // Initialize Redis database
 func initRedis(dbConfig DBConfig) *redis.Client {
-	utils.LogInfo.Println("redis connexion " + dbConfig.Url)
+	logrus.Println("redis connexion " + dbConfig.Url)
 
 	// Connection to the Redis database
 	redisCli := redis.NewClient(&redis.Options{
@@ -83,25 +83,25 @@ func initRedis(dbConfig DBConfig) *redis.Client {
 	// Verification of connection
 	ok, err := redisCli.Ping().Result()
 	if err != nil {
-		utils.LogError.Println("redis connexion error :", err.Error())
+		logrus.Error("redis connexion error :", err.Error())
 		panic(err)
 	} else {
-		utils.LogInfo.Println("redis connexion OK :", ok)
+		logrus.Println("redis connexion OK :", ok)
 	}
 
 	return redisCli
 }
 
 func initMongo(dbConfig DBConfig) *mgo.Session {
-	utils.LogInfo.Println("mongodb connexion " + dbConfig.Url)
+	logrus.Info("mongodb connexion " + dbConfig.Url)
 
 	// Connection to the Mongo database
 	mongoSession, err := mgo.DialWithTimeout("mongodb://"+dbConfig.Url+":"+dbConfig.Port+"/"+dbConfig.Database, timeout)
 	if err != nil {
-		utils.LogError.Println("mongodb connexion error :", err.Error())
+		logrus.Error("mongodb connexion error :", err.Error())
 		panic(err)
 	} else {
-		utils.LogInfo.Println("mongodb connexion OK")
+		logrus.Info("mongodb connexion OK")
 	}
 
 	mongoSession.SetSyncTimeout(timeout)
@@ -123,7 +123,7 @@ func getConfig(daoType DBType, dbConfigFile string) DBConfig {
 		}
 	} else {
 		if _, err := toml.DecodeFile(dbConfigFile, &config); err != nil {
-			utils.LogError.Println("connexion parameters error :", err)
+			logrus.Error("connexion parameters error :", err)
 			panic(err)
 		}
 	}
