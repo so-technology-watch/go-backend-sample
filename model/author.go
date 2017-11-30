@@ -4,14 +4,19 @@ import (
 	"errors"
 )
 
-const AuthorStr = "author"
-const AuthorIdStr = "author:"
-
 // Structure of an author
 type Author struct {
 	Id        string `json:"id, omitempty"`
 	Firstname string `json:"firstname"`
 	Lastname  string `json:"lastname"`
+}
+
+func NewAuthor(id, firstname, lastname string) *Author {
+	return &Author{
+		Id:         id,
+		Firstname:	firstname,
+		Lastname: 	lastname,
+	}
 }
 
 // Validation of an author structure

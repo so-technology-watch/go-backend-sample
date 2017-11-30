@@ -10,6 +10,13 @@ type Song struct {
 	Title  string `json:"title"`
 }
 
+func NewSong(number, title string) *Song {
+	return &Song{
+		Number: number,
+		Title:	title,
+	}
+}
+
 // Validation of a song structure
 func (song Song) Valid() error {
 	if song.Number == "" {
