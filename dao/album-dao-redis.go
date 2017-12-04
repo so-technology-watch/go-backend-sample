@@ -3,10 +3,10 @@ package dao
 import (
 	"encoding/json"
 	"errors"
+	"github.com/sirupsen/logrus"
 	"go-backend-sample/model"
 	"gopkg.in/redis.v5"
 	"strconv"
-	"github.com/sirupsen/logrus"
 )
 
 // compilation time interface check

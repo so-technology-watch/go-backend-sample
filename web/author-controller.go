@@ -1,10 +1,10 @@
 package web
 
 import (
+	"github.com/sirupsen/logrus"
 	"go-backend-sample/dao"
 	"go-backend-sample/model"
 	"net/http"
-	"github.com/sirupsen/logrus"
 )
 
 const (

@@ -13,7 +13,7 @@ type Song struct {
 func NewSong(number, title string) *Song {
 	return &Song{
 		Number: number,
-		Title:	title,
+		Title:  title,
 	}
 }
 

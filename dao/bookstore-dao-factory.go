@@ -3,11 +3,11 @@ package dao
 import (
 	"errors"
 	"github.com/BurntSushi/toml"
+	"github.com/sirupsen/logrus"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/redis.v5"
 	"os"
 	"time"
-	"github.com/sirupsen/logrus"
 )
 
 type DBType int

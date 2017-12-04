@@ -13,9 +13,9 @@ type Author struct {
 
 func NewAuthor(id, firstname, lastname string) *Author {
 	return &Author{
-		Id:         id,
-		Firstname:	firstname,
-		Lastname: 	lastname,
+		Id:        id,
+		Firstname: firstname,
+		Lastname:  lastname,
 	}
 }
 

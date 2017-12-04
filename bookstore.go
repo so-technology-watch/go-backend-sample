@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/urfave/negroni"
 	"github.com/sirupsen/logrus"
+	"github.com/urfave/negroni"
 	"go-backend-sample/dao"
 	"go-backend-sample/utils"
 	"go-backend-sample/web"
