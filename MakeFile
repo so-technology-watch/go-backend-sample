@@ -32,39 +32,39 @@ clean: ## Clean the project
 	@rm -Rf .tmp *.log build/
 
 build: format ## Build all libraries and binaries
-	@go build -v $(VERSION_FLAG) -o ../../bin/bookstore bookstore.go
+	@go build -v $(VERSION_FLAG) -o ../../bin/todolist todolist.go
 
 format: ## Format all packages
 	@go fmt $(PKGS)
 
 teardownTest: ## Tear down mongodb and redis for integration tests
-	@$(shell docker kill bookstore-mongo-test 2&>/dev/null 1&>/dev/null)
-	@$(shell docker kill bookstore-redis-test 2&>/dev/null 1&>/dev/null)
-	@$(shell docker rm bookstore-mongo-test 2&>/dev/null 1&>/dev/null)
-	@$(shell docker rm bookstore-redis-test 2&>/dev/null 1&>/dev/null)
+	@$(shell docker kill todolist-mongo-test 2&>/dev/null 1&>/dev/null)
+	@$(shell docker kill todolist-redis-test 2&>/dev/null 1&>/dev/null)
+	@$(shell docker rm todolist-mongo-test 2&>/dev/null 1&>/dev/null)
+	@$(shell docker rm todolist-redis-test 2&>/dev/null 1&>/dev/null)
 
 setupTest: teardownTest ## Start mongodb for integration tests
-	@docker run -d --name bookstore-mongo-test -p "27017:27017" mongo:latest
-	@docker run -d --name bookstore-redis-test -p "6379:6379" redis:latest
+	@docker run -d --name todolist-mongo-test -p "27017:27017" mongo:latest
+	@docker run -d --name todolist-redis-test -p "6379:6379" redis:latest
 
 test: setupTest ## Start tests with a mongodb and a redis docker images
 	@export URL_DB=$(DOCKER_IP); go test -v $(PKGS);
 
 start: ## Start the program
-	@bookstore -port 8020 -statd 15s -db 2
+	@todolist -port 8020 -statd 15s -db 2
 
 stop: ## Stop the program
-	@killall bookstore
+	@killall todolist
 
 # -----------------------------------------------------------------
 #        Docker targets
 # -----------------------------------------------------------------
 
 dockerBuild: ## Build a docker image of the program
-	docker build -t xavmarc/bookstore:latest .
+	docker build -t xavmarc/todolist:latest .
 
 dockerClean: ## Remove the docker image of the program
-	docker rmi -f xavmarc/bookstore:latest
+	docker rmi -f xavmarc/todolist:latest
 
 dockerUpRedis: ## Start the program with its redis
 	@export URL_DB=$(DOCKER_IP); docker-compose -f docker-compose-redis.yml up -d
@@ -83,7 +83,7 @@ dockerBuildUpRedis: dockerDownRedis dockerBuild dockerUpRedis ## Stop, build and
 dockerBuildUpMongo: dockerDownMongo dockerBuild dockerUpMongo ## Stop, build and launch the docker images of the program
 
 dockerWatch: ## Watch the status of the docker container
-	@watch -n1 'docker ps | grep bookstore'
+	@watch -n1 'docker ps | grep todolist'
 
 dockerLogsRedis: ## Print the logs of the container
 	@export URL_DB=$(DOCKER_IP); docker-compose -f docker-compose-redis.yml logs -f

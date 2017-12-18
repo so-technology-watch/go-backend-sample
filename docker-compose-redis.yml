@@ -1,7 +1,7 @@
-# bookstore micro-service redis
+# todolist micro-service redis
 bookstore-redis:
-  container_name: bookstore-redis
-  image: xavmarc/bookstore:latest
+  container_name: todolist-redis
+  image: xavmarc/todolist:latest
   restart: always
   environment:
     - URL_DB=${URL_DB}
@@ -13,7 +13,7 @@ bookstore-redis:
 
 # bdd redis
 redis:
-  container_name: bookstore-redis-db
+  container_name: todolist-redis-db
   image: redis:latest
   restart: always
   ports:

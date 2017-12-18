@@ -31,7 +31,7 @@ func main() {
 	// new app
 	app := cli.NewApp()
 	app.Name = utils.AppName
-	app.Usage = "bookstore service launcher"
+	app.Usage = "todolist service launcher"
 
 	timeStmp, err := strconv.Atoi(BuildStmp)
 	if err != nil {
@@ -84,7 +84,7 @@ func main() {
 			logrus.Warn("error setting log level, using debug as default")
 		}
 
-		authorDAO, albumDAO, err := dao.GetDAO(dao.DBType(db), dbConfigFile)
+		taskDAO, err := dao.GetDAO(dao.DBType(db), dbConfigFile)
 		if err != nil {
 			logrus.WithField("db", db).WithField("dbConfigFile", dbConfigFile).Error("unable to build the required DAO")
 		}
@@ -97,11 +97,9 @@ func main() {
 
 		// add middleware n.Use()
 
-		authorCtrl := web.NewAuthorController(authorDAO)
-		albumCtrl := web.NewAlbumController(albumDAO, authorDAO)
-		adminCtrl := web.NewAdminController(albumDAO, authorDAO)
+		taskCtrl := web.NewTaskController(taskDAO)
 
-		router := web.NewRouter(authorCtrl, albumCtrl, adminCtrl)
+		router := web.NewRouter(taskCtrl)
 
 		webServer.UseHandler(router)
 

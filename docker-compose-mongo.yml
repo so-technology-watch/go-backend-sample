@@ -1,7 +1,7 @@
-# bookstore micro-service on mongo
+# todolist micro-service on mongo
 bookstore-mongo:
-  container_name: bookstore-mongo
-  image: xavmarc/bookstore:latest
+  container_name: todolist-mongo
+  image: xavmarc/todolist:latest
   restart: always
   environment:
     - URL_DB=${URL_DB}
@@ -13,7 +13,7 @@ bookstore-mongo:
 
 # bdd mongo
 mongo:
-  container_name: bookstore-mongo-db
+  container_name: todolist-mongo-db
   image: mongo:latest
   restart: always
   ports:

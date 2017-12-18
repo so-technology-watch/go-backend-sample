@@ -51,21 +51,21 @@ var (
 	}
 )
 
-// GetDAO returns an AlbumDAO & an AuthorDAO according to type and params
-func GetDAO(daoType DBType, dbConfigFile string) (AuthorDAO, AlbumDAO, error) {
+// GetDAO returns a TaskDAO according to type and params
+func GetDAO(daoType DBType, dbConfigFile string) (TaskDAO, error) {
 	switch daoType {
 	case RedisDAO:
 		config := getConfig(RedisDAO, dbConfigFile)
 		redisCli := initRedis(config)
-		return NewAuthorDAORedis(redisCli), NewAlbumDAORedis(redisCli), nil
+		return NewTaskDAORedis(redisCli), nil
 	case MongoDAO:
 		config := getConfig(MongoDAO, dbConfigFile)
 		mongoSession := initMongo(config)
-		return NewAuthorDAOMongo(mongoSession), NewAlbumDAOMongo(mongoSession), nil
+		return NewTaskDAOMongo(mongoSession), nil
 	case MockDAO:
-		return NewAuthorDAOMock(), NewAlbumDAOMock(), nil
+		return NewTaskDAOMock(), nil
 	default:
-		return nil, nil, ErrorDAONotFound
+		return nil, ErrorDAONotFound
 	}
 }
 

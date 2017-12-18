@@ -19,43 +19,20 @@ type Route struct {
 }
 
 // NewRouter creates a new router instance
-func NewRouter(authorCtrl *AuthorController, albumCtrl *AlbumController, adminCtrl *AdminController) *Router {
+func NewRouter(taskCtrl *TaskController) *Router {
 	router := Router{mux.NewRouter()}
 	router.NotFoundHandler = NotFoundHandler()
 	router.StrictSlash(false)
 
-	AddAuthorRoutes(authorCtrl, router)
-	AddAlbumRoutes(albumCtrl, router)
-	AddAdminRoutes(adminCtrl, router)
-
+	AddTaskRoutes(taskCtrl, router)
 	return &router
 }
 
-func AddAuthorRoutes(authorCtrl *AuthorController, router Router) {
-	for _, route := range authorCtrl.Routes {
+func AddTaskRoutes(taskCtrl *TaskController, router Router) {
+	for _, route := range taskCtrl.Routes {
 		router.
 			Methods(route.Method).
-			Path(authorCtrl.Prefix + route.Pattern).
-			Name(route.Name).
-			Handler(route.HandlerFunc)
-	}
-}
-
-func AddAlbumRoutes(albumCtrl *AlbumController, router Router) {
-	for _, route := range albumCtrl.Routes {
-		router.
-			Methods(route.Method).
-			Path(albumCtrl.Prefix + route.Pattern).
-			Name(route.Name).
-			Handler(route.HandlerFunc)
-	}
-}
-
-func AddAdminRoutes(adminCtrl *AdminController, router Router) {
-	for _, route := range adminCtrl.Routes {
-		router.
-			Methods(route.Method).
-			Path(adminCtrl.Prefix + route.Pattern).
+			Path(taskCtrl.Prefix + route.Pattern).
 			Name(route.Name).
 			Handler(route.HandlerFunc)
 	}
