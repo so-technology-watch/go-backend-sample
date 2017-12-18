@@ -13,11 +13,8 @@ import (
 )
 
 var (
-	// Version is the version of the software
 	Version string
-	// BuildStmp is the build date
 	BuildStmp string
-	// GitHash is the git build hash
 	GitHash string
 
 	port               = 8020
@@ -28,7 +25,6 @@ var (
 )
 
 func main() {
-	// new app
 	app := cli.NewApp()
 	app.Name = utils.AppName
 	app.Usage = "todolist service launcher"
@@ -75,10 +71,8 @@ func main() {
 		},
 	}
 
-	// main action
 	app.Action = func(c *cli.Context) error {
 
-		// init log options from command line params
 		err := utils.InitLog(logLevel)
 		if err != nil {
 			logrus.Warn("error setting log level, using debug as default")
@@ -108,7 +102,6 @@ func main() {
 		return nil
 	}
 
-	// run the app
 	err = app.Run(os.Args)
 	if err != nil {
 		logrus.Error("run error %q\n", err)

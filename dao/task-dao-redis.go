@@ -9,7 +9,6 @@ import (
 	"gopkg.in/redis.v5"
 )
 
-// compilation time interface check
 var _ TaskDAO = (*TaskDAORedis)(nil)
 
 // TaskDAORedis is the redis implementation of the TaskDAO
@@ -24,7 +23,7 @@ func NewTaskDAORedis(redisCli *redis.Client) TaskDAO {
 	}
 }
 
-// Get returns a task by its id
+// Get return a task by its id
 func (dao *TaskDAORedis) Get(id string) (*model.Task, error) {
 	task, err := dao.get(id)
 	if err != nil {
@@ -34,7 +33,7 @@ func (dao *TaskDAORedis) Get(id string) (*model.Task, error) {
 	return task, nil
 }
 
-// GetAll returns all tasks
+// GetAll return all tasks
 func (dao *TaskDAORedis) GetAll() ([]model.Task, error) {
 	var tasks []model.Task
 
@@ -57,7 +56,7 @@ func (dao *TaskDAORedis) GetAll() ([]model.Task, error) {
 	return tasks, nil
 }
 
-// Upsert updates or creates a task, returns true if updated, false otherwise or on error
+// Upsert update or create a task, returns true if updated, false otherwise or on error
 func (dao *TaskDAORedis) Upsert(task *model.Task) (*model.Task, error) {
 	if len(task.Id) == 0 {
 		task.Id = uuid.NewV4().String()
@@ -71,7 +70,7 @@ func (dao *TaskDAORedis) Upsert(task *model.Task) (*model.Task, error) {
 	return task, nil
 }
 
-// Delete deletes a task by its id
+// Delete delete a task by its id
 func (dao *TaskDAORedis) Delete(id string) error {
 	result, err := dao.redisCli.Del(id).Result()
 	if err != nil {
@@ -83,7 +82,7 @@ func (dao *TaskDAORedis) Delete(id string) error {
 	return nil
 }
 
-// DeleteAll deletes all tasks
+// DeleteAll delete all tasks
 func (dao *TaskDAORedis) DeleteAll() error {
 	// Collect all identifiers of tasks
 	keys := dao.redisCli.Keys("*").Val()
@@ -102,7 +101,7 @@ func (dao *TaskDAORedis) DeleteAll() error {
 	return nil
 }
 
-// Exist checks if the task exist
+// Exist check if the task exist
 func (dao *TaskDAORedis) Exist(id string) (bool, error) {
 	result, err := dao.redisCli.Exists(id).Result()
 	if err != nil {
@@ -113,14 +112,13 @@ func (dao *TaskDAORedis) Exist(id string) (bool, error) {
 	return result, nil
 }
 
-// Save saves the task
+// save the task
 func (dao *TaskDAORedis) save(task *model.Task) (*model.Task, error) {
 	result, err := json.Marshal(task)
 	if err != nil {
 		return nil, err
 	}
 
-	// Save task in database
 	status := dao.redisCli.Set(task.Id, string(result), 0)
 	if status.Err() != nil {
 		return nil, status.Err()
@@ -129,6 +127,7 @@ func (dao *TaskDAORedis) save(task *model.Task) (*model.Task, error) {
 	return task, nil
 }
 
+// get a task by its id
 func (dao *TaskDAORedis) get(id string) (*model.Task, error) {
 	result, err := dao.redisCli.Get(id).Result()
 	if err != nil {

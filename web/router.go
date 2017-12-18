@@ -25,6 +25,7 @@ func NewRouter(taskCtrl *TaskController) *Router {
 	router.StrictSlash(false)
 
 	AddTaskRoutes(taskCtrl, router)
+
 	return &router
 }
 

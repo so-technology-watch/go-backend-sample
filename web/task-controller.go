@@ -5,6 +5,7 @@ import (
 	"go-backend-sample/dao"
 	"go-backend-sample/model"
 	"net/http"
+	"time"
 )
 
 const (
@@ -81,7 +82,7 @@ func (ctrl *TaskController) GetTasks(w http.ResponseWriter, r *http.Request) {
 	SendJSONOk(w, tasks)
 }
 
-// Get retrieve a task by id
+// Get retrieve a task by its id
 func (ctrl *TaskController) GetTask(w http.ResponseWriter, r *http.Request) {
 	taskId := ParamAsString("id", r)
 	logrus.Println("task : ", taskId)
@@ -109,6 +110,9 @@ func (ctrl *TaskController) CreateTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	task.CreationDate = time.Now()
+	task.Status = 0
+
 	task, err = ctrl.taskDao.Upsert(task)
 	if err != nil {
 		logrus.Error(err)
@@ -120,7 +124,7 @@ func (ctrl *TaskController) CreateTask(w http.ResponseWriter, r *http.Request) {
 	SendJSONWithHTTPCode(w, task, http.StatusCreated)
 }
 
-// Update update a task by id
+// Update update a task by its id
 func (ctrl *TaskController) UpdateTask(w http.ResponseWriter, r *http.Request) {
 	task := &model.Task{}
 	err := GetJSONContent(task, r)
@@ -131,6 +135,8 @@ func (ctrl *TaskController) UpdateTask(w http.ResponseWriter, r *http.Request) {
 	}
 
 	logrus.Println("update task : ", task.Id)
+
+	task.ModificationDate = time.Now()
 
 	taskExist, err := ctrl.taskDao.Exist(task.Id)
 	if err != nil {
@@ -153,7 +159,7 @@ func (ctrl *TaskController) UpdateTask(w http.ResponseWriter, r *http.Request) {
 	SendJSONOk(w, task)
 }
 
-// Delete delete a task by id
+// Delete delete a task by its id
 func (ctrl *TaskController) DeleteTask(w http.ResponseWriter, r *http.Request) {
 	taskId := ParamAsString("id", r)
 	logrus.Println("delete task : ", taskId)

@@ -6,7 +6,6 @@ import (
 	"go-backend-sample/model"
 )
 
-// compilation time interface check
 var _ TaskDAO = (*TaskDAOMock)(nil)
 
 // MockedTask is the task returned by this mocked interface
@@ -16,7 +15,7 @@ var MockedTask = model.Task{
 	Description: "TestMock",
 }
 
-// TaskDAOMock is the mocked implementation of the TaskDAOMock
+// TaskDAOMock is the mocked implementation of the TaskDAO
 type TaskDAOMock struct {
 	storage map[string]*model.Task
 }
@@ -33,7 +32,7 @@ func NewTaskDAOMock() TaskDAO {
 	return daoMock
 }
 
-// Get returns a task by its id
+// Get return a task by its id
 func (s *TaskDAOMock) Get(id string) (*model.Task, error) {
 	task, ok := s.storage[id]
 	if !ok {
@@ -42,7 +41,7 @@ func (s *TaskDAOMock) Get(id string) (*model.Task, error) {
 	return task, nil
 }
 
-// GetAll returns all tasks
+// GetAll return all tasks
 func (s *TaskDAOMock) GetAll() ([]model.Task, error) {
 	var tasks []model.Task
 	for taskId := range s.storage {
@@ -52,7 +51,7 @@ func (s *TaskDAOMock) GetAll() ([]model.Task, error) {
 	return tasks, nil
 }
 
-// Upsert updates or creates a task
+// Upsert update or create a task
 func (s *TaskDAOMock) Upsert(task *model.Task) (*model.Task, error) {
 	if task.Id == "" {
 		task.Id = uuid.NewV4().String()
@@ -61,7 +60,7 @@ func (s *TaskDAOMock) Upsert(task *model.Task) (*model.Task, error) {
 	return task, nil
 }
 
-// Delete deletes a task by its id
+// Delete delete a task by its id
 func (s *TaskDAOMock) Delete(id string) error {
 	delete(s.storage, id)
 	return nil
@@ -75,7 +74,7 @@ func (s *TaskDAOMock) DeleteAll() error {
 	return nil
 }
 
-// Exist checks if the task exist
+// Exist check if the task exist
 func (s *TaskDAOMock) Exist(id string) (bool, error) {
 	if s.storage[id] != nil {
 		return true, nil
@@ -83,13 +82,13 @@ func (s *TaskDAOMock) Exist(id string) (bool, error) {
 	return false, errors.New("task not found with id " + id)
 }
 
-// save saves the task
+// save the task
 func (s *TaskDAOMock) save(task *model.Task) *model.Task {
 	s.storage[task.Id] = task
 	return task
 }
 
-// get return a task by its id
+// get a task by its id
 func (s *TaskDAOMock) get(id string) *model.Task {
 	task := s.storage[id]
 	return task

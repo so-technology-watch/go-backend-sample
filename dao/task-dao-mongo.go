@@ -9,11 +9,9 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-// compilation time interface check
 var _ TaskDAO = (*TaskDAOMongo)(nil)
 
 var (
-	// ErrInvalidUUIDTask is used on invalid UUID number for a task
 	ErrInvalidUUIDTask = errors.New("invalid input to UUID")
 )
 
@@ -48,7 +46,7 @@ func NewTaskDAOMongo(session *mgo.Session) TaskDAO {
 	}
 }
 
-// Get returns a task by its id
+// Get return a task by its id
 func (s *TaskDAOMongo) Get(id string) (*model.Task, error) {
 	if _, err := uuid.FromString(id); err != nil {
 		return nil, ErrInvalidUUIDTask
@@ -66,7 +64,7 @@ func (s *TaskDAOMongo) Get(id string) (*model.Task, error) {
 	return &task, err
 }
 
-// GetAll returns all tasks
+// GetAll return all tasks
 func (s *TaskDAOMongo) GetAll() ([]model.Task, error) {
 	var err error
 	var tasks []model.Task
@@ -81,7 +79,7 @@ func (s *TaskDAOMongo) GetAll() ([]model.Task, error) {
 	return tasks, err
 }
 
-// Upsert updates or creates a task
+// Upsert update or create a task
 func (s *TaskDAOMongo) Upsert(task *model.Task) (*model.Task, error) {
 	if len(task.Id) == 0 {
 		task.Id = uuid.NewV4().String()
@@ -97,7 +95,7 @@ func (s *TaskDAOMongo) Upsert(task *model.Task) (*model.Task, error) {
 	return task, nil
 }
 
-// Delete deletes a task by its id
+// Delete delete a task by its id
 func (s *TaskDAOMongo) Delete(id string) error {
 	if _, err := uuid.FromString(id); err != nil {
 		return ErrInvalidUUIDTask
@@ -110,7 +108,7 @@ func (s *TaskDAOMongo) Delete(id string) error {
 	return err
 }
 
-// DeleteAll deletes all tasks
+// DeleteAll delete all tasks
 func (s *TaskDAOMongo) DeleteAll() error {
 	session := s.session.Copy()
 	defer session.Close()

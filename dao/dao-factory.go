@@ -20,11 +20,11 @@ type DBConfig struct {
 }
 
 const (
-	// RedisDAO is used for Redis implementation of AlbumDAO or AuthorDAO
+	// RedisDAO is used for Redis implementation of TaskDAO
 	RedisDAO DBType = iota
-	// MongoDAO is used for Mongo implementation of AlbumDAO or AuthorDAO
+	// MongoDAO is used for Mongo implementation of TaskDAO
 	MongoDAO
-	// MockDAO is used for mocked implementation of AlbumDAO or AuthorDAO
+	// MockDAO is used for mocked implementation of TaskDAO
 	MockDAO
 
 	// mongo timeout
@@ -46,7 +46,7 @@ var (
 	mongoLocalConfig = DBConfig{
 		Url:      os.Getenv("URL_DB"),
 		Password: "",
-		Database: "bookstore",
+		Database: "todolist",
 		Port:     "27017",
 	}
 )
@@ -92,6 +92,7 @@ func initRedis(dbConfig DBConfig) *redis.Client {
 	return redisCli
 }
 
+// Initialize Mongo database
 func initMongo(dbConfig DBConfig) *mgo.Session {
 	logrus.Info("mongodb connexion " + dbConfig.Url)
 

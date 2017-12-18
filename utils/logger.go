@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	AppName = "bookstore"
+	AppName = "todolist"
 )
 
 // Initialize logger
