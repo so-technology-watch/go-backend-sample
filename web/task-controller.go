@@ -62,6 +62,13 @@ func NewTaskController(taskDAO dao.TaskDAO) *TaskController {
 		Pattern:     "/{id}",
 		HandlerFunc: controller.DeleteTask,
 	})
+	// Delete All
+	routes = append(routes, Route{
+		Name:        "Delete all tasks",
+		Method:      http.MethodDelete,
+		Pattern:     "/",
+		HandlerFunc: controller.DeleteTasks,
+	})
 
 	controller.Routes = routes
 
@@ -172,5 +179,20 @@ func (ctrl *TaskController) DeleteTask(w http.ResponseWriter, r *http.Request) {
 	}
 
 	logrus.Println("deleted task : ", taskId)
+	SendJSONWithHTTPCode(w, nil, http.StatusNoContent)
+}
+
+// Delete delete all tasks
+func (ctrl *TaskController) DeleteTasks(w http.ResponseWriter, r *http.Request) {
+	logrus.Println("delete all tasks")
+
+	err := ctrl.taskDao.DeleteAll()
+	if err != nil {
+		logrus.Error(err)
+		SendJSONError(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	logrus.Println("all tasks deleted")
 	SendJSONWithHTTPCode(w, nil, http.StatusNoContent)
 }
