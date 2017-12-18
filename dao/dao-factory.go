@@ -20,11 +20,8 @@ type DBConfig struct {
 }
 
 const (
-	// RedisDAO is used for Redis implementation of TaskDAO
 	RedisDAO DBType = iota
-	// MongoDAO is used for Mongo implementation of TaskDAO
 	MongoDAO
-	// MockDAO is used for mocked implementation of TaskDAO
 	MockDAO
 
 	// mongo timeout
@@ -51,7 +48,6 @@ var (
 	}
 )
 
-// GetDAO returns a TaskDAO according to type and params
 func GetDAO(daoType DBType, dbConfigFile string) (TaskDAO, error) {
 	switch daoType {
 	case RedisDAO:
@@ -69,18 +65,17 @@ func GetDAO(daoType DBType, dbConfigFile string) (TaskDAO, error) {
 	}
 }
 
-// Initialize Redis database
 func initRedis(dbConfig DBConfig) *redis.Client {
 	logrus.Println("redis connexion " + dbConfig.Url)
 
-	// Connection to the Redis database
+	// connection to the Redis database
 	redisCli := redis.NewClient(&redis.Options{
 		Addr:     dbConfig.Url + ":" + dbConfig.Port,
 		Password: dbConfig.Password,
 		DB:       int(RedisDAO),
 	})
 
-	// Verification of connection
+	// verification of connection
 	ok, err := redisCli.Ping().Result()
 	if err != nil {
 		logrus.Error("redis connexion error :", err.Error())
@@ -92,11 +87,10 @@ func initRedis(dbConfig DBConfig) *redis.Client {
 	return redisCli
 }
 
-// Initialize Mongo database
 func initMongo(dbConfig DBConfig) *mgo.Session {
 	logrus.Info("mongodb connexion " + dbConfig.Url)
 
-	// Connection to the Mongo database
+	// connection to the Mongo database
 	mongoSession, err := mgo.DialWithTimeout("mongodb://"+dbConfig.Url+":"+dbConfig.Port+"/"+dbConfig.Database, timeout)
 	if err != nil {
 		logrus.Error("mongodb connexion error :", err.Error())

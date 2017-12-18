@@ -9,7 +9,6 @@ const (
 	AppName = "todolist"
 )
 
-// Initialize logger
 func InitLog(logLevel string) error {
 
 	logrus.SetFormatter(&logrus.TextFormatter{

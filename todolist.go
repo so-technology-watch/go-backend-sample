@@ -13,15 +13,14 @@ import (
 )
 
 var (
-	Version string
+	Version   string
 	BuildStmp string
-	GitHash string
+	GitHash   string
 
-	port               = 8020
-	statisticsDuration = 20 * time.Second
-	logLevel           = "warning"
-	db                 = 2
-	dbConfigFile       = ""
+	port         = 8020
+	logLevel     = "warning"
+	db           = 2
+	dbConfigFile = ""
 )
 
 func main() {
@@ -37,19 +36,12 @@ func main() {
 	app.Authors = []cli.Author{{Name: "xma"}}
 	app.Copyright = "Copyright " + strconv.Itoa(time.Now().Year())
 
-	// command line flags
 	app.Flags = []cli.Flag{
 		cli.IntFlag{
 			Value:       port,
 			Name:        "port, p",
 			Usage:       "Set the listening port of the webserver",
 			Destination: &port,
-		},
-		cli.DurationFlag{
-			Value:       statisticsDuration,
-			Name:        "statd, s",
-			Usage:       "Set the statistics accumulation duration (ex : 1h, 2h30m, 30s, 300ms)",
-			Destination: &statisticsDuration,
 		},
 		cli.StringFlag{
 			Value:       logLevel,
@@ -59,20 +51,19 @@ func main() {
 		},
 		cli.IntFlag{
 			Value:       db,
-			Name:        "db",
+			Name:        "database, d",
 			Usage:       "Set the database connection parameters (0 - Redis | 1 - MongoDB | 2 - Mock)",
 			Destination: &db,
 		},
 		cli.StringFlag{
 			Value:       dbConfigFile,
-			Name:        "dbConfig",
+			Name:        "file, f",
 			Usage:       "Set the path of database connection parameters file",
 			Destination: &dbConfigFile,
 		},
 	}
 
 	app.Action = func(c *cli.Context) error {
-
 		err := utils.InitLog(logLevel)
 		if err != nil {
 			logrus.Warn("error setting log level, using debug as default")
@@ -83,20 +74,17 @@ func main() {
 			logrus.WithField("db", db).WithField("dbConfigFile", dbConfigFile).Error("unable to build the required DAO")
 		}
 
-		webServer := negroni.New()
-
 		recovery := negroni.NewRecovery()
 		recovery.PrintStack = false
+
+		webServer := negroni.New()
 		webServer.Use(recovery)
 
 		// add middleware n.Use()
-
 		taskCtrl := web.NewTaskController(taskDAO)
-
 		router := web.NewRouter(taskCtrl)
 
 		webServer.UseHandler(router)
-
 		webServer.Run(":" + strconv.Itoa(port))
 
 		return nil

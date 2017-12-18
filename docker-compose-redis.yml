@@ -1,5 +1,5 @@
 # todolist micro-service redis
-bookstore-redis:
+todolist-redis:
   container_name: todolist-redis
   image: xavmarc/todolist:latest
   restart: always
@@ -9,7 +9,7 @@ bookstore-redis:
     - redis
   ports:
     - "8020:8020"
-  command: -port 8020 -db 0 -statd 5m
+  command: -p 8020 -l info -d 0
 
 # bdd redis
 redis:

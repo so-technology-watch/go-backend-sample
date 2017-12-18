@@ -51,7 +51,7 @@ test: setupTest ## Start tests with a mongodb and a redis docker images
 	@export URL_DB=$(DOCKER_IP); go test -v $(PKGS);
 
 start: ## Start the program
-	@todolist -port 8020 -statd 15s -db 2
+	@todolist -p 8020 -l debug -d 2
 
 stop: ## Stop the program
 	@killall todolist
@@ -83,7 +83,7 @@ dockerBuildUpRedis: dockerDownRedis dockerBuild dockerUpRedis ## Stop, build and
 dockerBuildUpMongo: dockerDownMongo dockerBuild dockerUpMongo ## Stop, build and launch the docker images of the program
 
 dockerWatch: ## Watch the status of the docker container
-	@watch -n1 'docker ps | grep todolist'
+	@watch -n1 'docker ps | grep bookstore'
 
 dockerLogsRedis: ## Print the logs of the container
 	@export URL_DB=$(DOCKER_IP); docker-compose -f docker-compose-redis.yml logs -f

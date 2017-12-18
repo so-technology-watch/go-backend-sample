@@ -1,5 +1,5 @@
 # todolist micro-service on mongo
-bookstore-mongo:
+todolist-mongo:
   container_name: todolist-mongo
   image: xavmarc/todolist:latest
   restart: always
@@ -9,7 +9,7 @@ bookstore-mongo:
     - mongo
   ports:
     - "8020:8020"
-  command: -port 8020 -db 1 -statd 5m
+  command: -p 8020 -l info -d 0
 
 # bdd mongo
 mongo:

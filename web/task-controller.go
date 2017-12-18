@@ -12,14 +12,12 @@ const (
 	prefixTask = "/tasks"
 )
 
-// TaskController is a controller for tasks resources
 type TaskController struct {
 	taskDao dao.TaskDAO
 	Routes  []Route
 	Prefix  string
 }
 
-// NewTaskController creates a new task controller to manage tasks
 func NewTaskController(taskDAO dao.TaskDAO) *TaskController {
 	controller := TaskController{
 		taskDao: taskDAO,
@@ -107,7 +105,6 @@ func (ctrl *TaskController) GetTask(w http.ResponseWriter, r *http.Request) {
 
 // Create create a task
 func (ctrl *TaskController) CreateTask(w http.ResponseWriter, r *http.Request) {
-	logrus.Println("create task")
 	task := &model.Task{}
 	logrus.Println(r.Body)
 	err := GetJSONContent(task, r)
@@ -117,7 +114,10 @@ func (ctrl *TaskController) CreateTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	logrus.Println("create task")
+
 	task.CreationDate = time.Now()
+	task.ModificationDate = time.Now()
 	task.Status = 0
 
 	task, err = ctrl.taskDao.Upsert(task)
