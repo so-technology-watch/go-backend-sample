@@ -5,7 +5,6 @@ import (
 )
 
 type TaskDAO interface {
-
 	Get(id string) (*model.Task, error)
 
 	GetAll() ([]model.Task, error)

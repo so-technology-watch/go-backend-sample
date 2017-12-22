@@ -1,8 +1,10 @@
 package dao
 
 import (
+	"database/sql"
 	"errors"
 	"github.com/BurntSushi/toml"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/redis.v5"
@@ -15,6 +17,7 @@ type DBType int
 type DBConfig struct {
 	Url      string
 	Port     string
+	User     string
 	Password string
 	Database string
 }
@@ -22,6 +25,7 @@ type DBConfig struct {
 const (
 	RedisDAO DBType = iota
 	MongoDAO
+	MySQLDAO
 	MockDAO
 
 	// mongo timeout
@@ -46,6 +50,28 @@ var (
 		Database: "todolist",
 		Port:     "27017",
 	}
+
+	mySQLLocalConfig = DBConfig{
+		Url:      os.Getenv("URL_DB"),
+		User:     "root",
+		Password: "password",
+		Database: "todolist",
+		Port:     "3306",
+	}
+
+	createDatabaseTableMySQLStatements = []string{
+		`CREATE DATABASE IF NOT EXISTS todolist DEFAULT CHARACTER SET = 'utf8' DEFAULT COLLATE 'utf8_general_ci';`,
+		`USE todolist;`,
+		`CREATE TABLE IF NOT EXISTS task (
+			id VARCHAR(50) NOT NULL,
+			title VARCHAR(100) NULL,
+			description VARCHAR(500) NULL,
+			status INT NULL,
+			creationDate DATETIME NULL,
+			modificationDate DATETIME NULL,
+			PRIMARY KEY (id)
+		)`,
+	}
 )
 
 func GetDAO(daoType DBType, dbConfigFile string) (TaskDAO, error) {
@@ -58,6 +84,11 @@ func GetDAO(daoType DBType, dbConfigFile string) (TaskDAO, error) {
 		config := getConfig(MongoDAO, dbConfigFile)
 		mongoSession := initMongo(config)
 		return NewTaskDAOMongo(mongoSession), nil
+	case MySQLDAO:
+		config := getConfig(MySQLDAO, dbConfigFile)
+		mySQLSession := initMySQL(config)
+		createDatabaseTableMySQL(mySQLSession)
+		return NewTaskDAOMySQL(mySQLSession), nil
 	case MockDAO:
 		return NewTaskDAOMock(), nil
 	default:
@@ -107,6 +138,33 @@ func initMongo(dbConfig DBConfig) *mgo.Session {
 	return mongoSession
 }
 
+func initMySQL(dbConfig DBConfig) *sql.DB {
+	logrus.Println("mysql connexion " + dbConfig.Url)
+
+	mySQlSession, err := sql.Open("mysql", dbConfig.User+":"+dbConfig.Password+"@tcp("+dbConfig.Url+":"+dbConfig.Port+")/"+dbConfig.Database + "?parseTime=true")
+	if err != nil {
+		logrus.Error("mysql connexion error :", err.Error())
+		panic(err.Error())
+	}
+	err = mySQlSession.Ping()
+	if err != nil {
+		logrus.Error("mysql connexion error :", err.Error())
+		panic(err.Error())
+	}
+
+	return mySQlSession
+}
+
+func createDatabaseTableMySQL(mySQlSession *sql.DB) error {
+	for _, stmt := range createDatabaseTableMySQLStatements {
+		_, err := mySQlSession.Exec(stmt)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func getConfig(daoType DBType, dbConfigFile string) DBConfig {
 	var config DBConfig
 	if dbConfigFile == "" {
@@ -115,6 +173,8 @@ func getConfig(daoType DBType, dbConfigFile string) DBConfig {
 			config = redisLocalConfig
 		case MongoDAO:
 			config = mongoLocalConfig
+		case MySQLDAO:
+			config = mySQLLocalConfig
 		}
 	} else {
 		if _, err := toml.DecodeFile(dbConfigFile, &config); err != nil {

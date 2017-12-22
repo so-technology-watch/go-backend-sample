@@ -52,7 +52,7 @@ func main() {
 		cli.IntFlag{
 			Value:       db,
 			Name:        "database, d",
-			Usage:       "Set the database connection parameters (0 - Redis | 1 - MongoDB | 2 - Mock)",
+			Usage:       "Set the database connection parameters (0 - Redis | 1 - MongoDB | 2 - MySQL | 3 - Mock)",
 			Destination: &db,
 		},
 		cli.StringFlag{

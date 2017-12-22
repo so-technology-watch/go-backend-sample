@@ -40,18 +40,21 @@ format: ## Format all packages
 teardownTest: ## Tear down mongodb and redis for integration tests
 	@$(shell docker kill todolist-mongo-test 2&>/dev/null 1&>/dev/null)
 	@$(shell docker kill todolist-redis-test 2&>/dev/null 1&>/dev/null)
+	@$(shell docker kill todolist-mysql-test 2&>/dev/null 1&>/dev/null)
 	@$(shell docker rm todolist-mongo-test 2&>/dev/null 1&>/dev/null)
 	@$(shell docker rm todolist-redis-test 2&>/dev/null 1&>/dev/null)
+	@$(shell docker rm todolist-mysql-test 2&>/dev/null 1&>/dev/null)
 
 setupTest: teardownTest ## Start mongodb for integration tests
 	@docker run -d --name todolist-mongo-test -p "27017:27017" mongo:latest
 	@docker run -d --name todolist-redis-test -p "6379:6379" redis:latest
+	@docker run -d --name todolist-mysql-test -e MYSQL_ROOT_PASSWORD=password -e MYSQL_DATABASE=todolist -p "3306:3306" mysql:latest
 
 test: setupTest ## Start tests with a mongodb and a redis docker images
 	@export URL_DB=$(DOCKER_IP); go test -v $(PKGS);
 
 start: ## Start the program
-	@todolist -p 8020 -l debug -d 2
+	@todolist -p 8020 -l debug -d 3
 
 stop: ## Stop the program
 	@killall todolist
@@ -72,23 +75,34 @@ dockerUpRedis: ## Start the program with its redis
 dockerUpMongo: ## Start the program with its mongodb
 	@export URL_DB=$(DOCKER_IP); docker-compose -f docker-compose-mongo.yml up -d
 
+dockerUpMySQL: ## Start the program with its mysql
+	@export URL_DB=$(DOCKER_IP); docker-compose -f docker-compose-mysql.yml up -d
+
 dockerDownRedis: ## Stop the program and the redis and remove the containers
 	@export URL_DB=$(DOCKER_IP); docker-compose -f docker-compose-redis.yml down
 
-dockerDownMongo: ## Stop the program and the redis and remove the containers
+dockerDownMongo: ## Stop the program and the mongo and remove the containers
 	@export URL_DB=$(DOCKER_IP); docker-compose -f docker-compose-mongo.yml down
+
+dockerDownMySQL: ## Stop the program and the mysql and remove the containers
+	@export URL_DB=$(DOCKER_IP); docker-compose -f docker-compose-mysql.yml down
 
 dockerBuildUpRedis: dockerDownRedis dockerBuild dockerUpRedis ## Stop, build and launch the docker images of the program
 
 dockerBuildUpMongo: dockerDownMongo dockerBuild dockerUpMongo ## Stop, build and launch the docker images of the program
 
+dockerBuildUpMySQL: dockerDownMySQL dockerBuild dockerUpMySQL ## Stop, build and launch the docker images of the program
+
 dockerWatch: ## Watch the status of the docker container
-	@watch -n1 'docker ps | grep bookstore'
+	@watch -n1 'docker ps | grep todolist'
 
 dockerLogsRedis: ## Print the logs of the container
 	@export URL_DB=$(DOCKER_IP); docker-compose -f docker-compose-redis.yml logs -f
 
 dockerLogsMongo: ## Print the logs of the container
 	@export URL_DB=$(DOCKER_IP); docker-compose -f docker-compose-mongo.yml logs -f
+
+dockerLogsMySQL: ## Print the logs of the container
+	@export URL_DB=$(DOCKER_IP); docker-compose -f docker-compose-mysql.yml logs -f
 
 .PHONY: all test clean teardownTest setupTest
