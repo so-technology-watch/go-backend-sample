@@ -8,22 +8,22 @@ import (
 	"go-backend-sample/model"
 )
 
-var _ TaskDAO = (*TaskDAOMySQL)(nil)
+var _ TaskDAO = (*TaskDAOSQL)(nil)
 
-// TaskDAOMySQL is the mysql  implementation of the TaskDAO
-type TaskDAOMySQL struct {
-	mysqlSession *sql.DB
+// TaskDAOSQL is the sql implementation of the TaskDAO
+type TaskDAOSQL struct {
+	sqlSession *sql.DB
 }
 
-// NewTaskDAOMySQL creates a new TaskDAO mysql implementation
-func NewTaskDAOMySQL(mysqlSession *sql.DB) TaskDAO {
-	return &TaskDAOMySQL{
-		mysqlSession: mysqlSession,
+// NewTaskDAOSQL creates a new TaskDAO sql implementation
+func NewTaskDAOSQL(sqlSession *sql.DB) TaskDAO {
+	return &TaskDAOSQL{
+		sqlSession: sqlSession,
 	}
 }
 
 // Get return a task by its id
-func (dao *TaskDAOMySQL) Get(id string) (*model.Task, error) {
+func (dao *TaskDAOSQL) Get(id string) (*model.Task, error) {
 	task, err := dao.get(id)
 	if err != nil {
 		return nil, err
@@ -33,11 +33,11 @@ func (dao *TaskDAOMySQL) Get(id string) (*model.Task, error) {
 }
 
 // GetAll return all tasks
-func (dao *TaskDAOMySQL) GetAll() ([]model.Task, error) {
+func (dao *TaskDAOSQL) GetAll() ([]model.Task, error) {
 	var tasks []model.Task
 
 	// Collect all tasks identifiers
-	rows, err := dao.mysqlSession.Query("SELECT * FROM task")
+	rows, err := dao.sqlSession.Query("SELECT * FROM task")
 	if err != nil {
 		return nil, err
 	}
@@ -57,12 +57,12 @@ func (dao *TaskDAOMySQL) GetAll() ([]model.Task, error) {
 }
 
 // Upsert update or create a task, returns true if updated, false otherwise or on error
-func (dao *TaskDAOMySQL) Upsert(task *model.Task) (*model.Task, error) {
+func (dao *TaskDAOSQL) Upsert(task *model.Task) (*model.Task, error) {
 	if len(task.Id) == 0 {
 		task.Id = uuid.NewV4().String()
 
 		// insert
-		stmt, err := dao.mysqlSession.Prepare("INSERT task SET id=?,title=?,description=?,status=?,creationDate=?,modificationDate=?")
+		stmt, err := dao.sqlSession.Prepare("INSERT INTO task (id, title, description, status, creationDate, modificationDate) VALUES (?,?,?,?,?,?)")
 		if err != nil {
 			return nil, err
 		}
@@ -73,7 +73,7 @@ func (dao *TaskDAOMySQL) Upsert(task *model.Task) (*model.Task, error) {
 		}
 	} else {
 		// update
-		stmt, err := dao.mysqlSession.Prepare("update task set title=?,description=?,status=?,creationDate=?,modificationDate=? where id=?")
+		stmt, err := dao.sqlSession.Prepare("UPDATE task SET title=?,description=?,status=?,creationDate=?,modificationDate=? WHERE id=?")
 		if err != nil {
 			return nil, err
 		}
@@ -88,8 +88,8 @@ func (dao *TaskDAOMySQL) Upsert(task *model.Task) (*model.Task, error) {
 }
 
 // Delete delete a task by its id
-func (dao *TaskDAOMySQL) Delete(id string) error {
-	stmt, err := dao.mysqlSession.Prepare("delete from task where id=?")
+func (dao *TaskDAOSQL) Delete(id string) error {
+	stmt, err := dao.sqlSession.Prepare("DELETE FROM task WHERE id=?")
 	if err != nil {
 		return err
 	}
@@ -110,8 +110,8 @@ func (dao *TaskDAOMySQL) Delete(id string) error {
 }
 
 // DeleteAll delete all tasks
-func (dao *TaskDAOMySQL) DeleteAll() error {
-	stmt, err := dao.mysqlSession.Prepare("delete * from task")
+func (dao *TaskDAOSQL) DeleteAll() error {
+	stmt, err := dao.sqlSession.Prepare("DELETE * FROM task")
 	if err != nil {
 		return err
 	}
@@ -132,10 +132,10 @@ func (dao *TaskDAOMySQL) DeleteAll() error {
 }
 
 // Exist check if the task exist
-func (dao *TaskDAOMySQL) Exist(id string) (bool, error) {
+func (dao *TaskDAOSQL) Exist(id string) (bool, error) {
 	task := model.Task{}
 
-	err := dao.mysqlSession.QueryRow("SELECT * FROM task WHERE id=?", id).
+	err := dao.sqlSession.QueryRow("SELECT * FROM task WHERE id=?", id).
 		Scan(&task.Id, &task.Title, &task.Description, &task.CreationDate, &task.ModificationDate)
 	if err != nil {
 		return false, err
@@ -145,10 +145,10 @@ func (dao *TaskDAOMySQL) Exist(id string) (bool, error) {
 }
 
 // get a task by its id
-func (dao *TaskDAOMySQL) get(id string) (*model.Task, error) {
+func (dao *TaskDAOSQL) get(id string) (*model.Task, error) {
 	task := model.Task{}
 
-	err := dao.mysqlSession.QueryRow("SELECT * FROM task WHERE id=?", id).
+	err := dao.sqlSession.QueryRow("SELECT * FROM task WHERE id=?", id).
 		Scan(&task.Id, &task.Title, &task.Description, &task.Status, &task.CreationDate, &task.ModificationDate)
 	if err != nil {
 		return nil, err

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/BurntSushi/toml"
 	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/mattn/go-sqlite3"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/redis.v5"
@@ -20,12 +21,14 @@ type DBConfig struct {
 	User     string
 	Password string
 	Database string
+	File     string
 }
 
 const (
 	RedisDAO DBType = iota
 	MongoDAO
 	MySQLDAO
+	SQLiteDAO
 	MockDAO
 
 	// mongo timeout
@@ -59,9 +62,15 @@ var (
 		Port:     "3306",
 	}
 
-	createDatabaseTableMySQLStatements = []string{
+	sqliteLocalConfig = DBConfig{
+		File: ":memory:",
+	}
+
+	createDatabaseSQLStatements = []string{
 		`CREATE DATABASE IF NOT EXISTS todolist DEFAULT CHARACTER SET = 'utf8' DEFAULT COLLATE 'utf8_general_ci';`,
 		`USE todolist;`,
+	}
+	createTableSQLStatement = 
 		`CREATE TABLE IF NOT EXISTS task (
 			id VARCHAR(50) NOT NULL,
 			title VARCHAR(100) NULL,
@@ -70,8 +79,7 @@ var (
 			creationDate DATETIME NULL,
 			modificationDate DATETIME NULL,
 			PRIMARY KEY (id)
-		)`,
-	}
+		)`
 )
 
 func GetDAO(daoType DBType, dbConfigFile string) (TaskDAO, error) {
@@ -87,8 +95,14 @@ func GetDAO(daoType DBType, dbConfigFile string) (TaskDAO, error) {
 	case MySQLDAO:
 		config := getConfig(MySQLDAO, dbConfigFile)
 		mySQLSession := initMySQL(config)
-		createDatabaseTableMySQL(mySQLSession)
-		return NewTaskDAOMySQL(mySQLSession), nil
+		createDatabaseSQL(mySQLSession)
+		createTableSQL(mySQLSession)
+		return NewTaskDAOSQL(mySQLSession), nil
+	case SQLiteDAO:
+		config := getConfig(SQLiteDAO, dbConfigFile)
+		sqliteSession := initSQLite(config)
+		createTableSQL(sqliteSession)
+		return NewTaskDAOSQL(sqliteSession), nil
 	case MockDAO:
 		return NewTaskDAOMock(), nil
 	default:
@@ -141,7 +155,7 @@ func initMongo(dbConfig DBConfig) *mgo.Session {
 func initMySQL(dbConfig DBConfig) *sql.DB {
 	logrus.Println("mysql connexion " + dbConfig.Url)
 
-	mySQlSession, err := sql.Open("mysql", dbConfig.User+":"+dbConfig.Password+"@tcp("+dbConfig.Url+":"+dbConfig.Port+")/"+dbConfig.Database + "?parseTime=true")
+	mySQlSession, err := sql.Open("mysql", dbConfig.User+":"+dbConfig.Password+"@tcp("+dbConfig.Url+":"+dbConfig.Port+")/"+dbConfig.Database+"?parseTime=true")
 	if err != nil {
 		logrus.Error("mysql connexion error :", err.Error())
 		panic(err.Error())
@@ -155,12 +169,37 @@ func initMySQL(dbConfig DBConfig) *sql.DB {
 	return mySQlSession
 }
 
-func createDatabaseTableMySQL(mySQlSession *sql.DB) error {
-	for _, stmt := range createDatabaseTableMySQLStatements {
-		_, err := mySQlSession.Exec(stmt)
+func initSQLite(dbConfig DBConfig) *sql.DB {
+	logrus.Println("sqlite connexion " + dbConfig.File)
+
+	sqliteSession, err := sql.Open("sqlite3", dbConfig.File)
+	if err != nil {
+		logrus.Error("sqlite connexion error :", err.Error())
+		panic(err.Error())
+	}
+	err = sqliteSession.Ping()
+	if err != nil {
+		logrus.Error("sqlite connexion error :", err.Error())
+		panic(err.Error())
+	}
+
+	return sqliteSession
+}
+
+func createDatabaseSQL(session *sql.DB) error {
+	for _, stmt := range createDatabaseSQLStatements {
+		_, err := session.Exec(stmt)
 		if err != nil {
 			return err
 		}
+	}
+	return nil
+}
+
+func createTableSQL(session *sql.DB) error {
+	_, err := session.Exec(createTableSQLStatement)
+	if err != nil {
+		return err
 	}
 	return nil
 }
@@ -175,6 +214,8 @@ func getConfig(daoType DBType, dbConfigFile string) DBConfig {
 			config = mongoLocalConfig
 		case MySQLDAO:
 			config = mySQLLocalConfig
+		case SQLiteDAO:
+			config = sqliteLocalConfig
 		}
 	} else {
 		if _, err := toml.DecodeFile(dbConfigFile, &config); err != nil {

@@ -9,7 +9,7 @@ todolist-mongo:
     - mongo
   ports:
     - "8020:8020"
-  command: -p 8020 -l info -d 0
+  command: -p 8020 -l info -d 1
 
 # bdd mongo
 mongo:

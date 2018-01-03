@@ -54,7 +54,7 @@ test: setupTest ## Start tests with a mongodb and a redis docker images
 	@export URL_DB=$(DOCKER_IP); go test -v $(PKGS);
 
 start: ## Start the program
-	@todolist -p 8020 -l debug -d 3
+	@todolist -p 8020 -l debug -d 4
 
 stop: ## Stop the program
 	@killall todolist

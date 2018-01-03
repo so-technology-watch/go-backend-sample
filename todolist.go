@@ -19,7 +19,7 @@ var (
 
 	port         = 8020
 	logLevel     = "warning"
-	db           = 2
+	db           = 4
 	dbConfigFile = ""
 )
 
@@ -52,7 +52,7 @@ func main() {
 		cli.IntFlag{
 			Value:       db,
 			Name:        "database, d",
-			Usage:       "Set the database connection parameters (0 - Redis | 1 - MongoDB | 2 - MySQL | 3 - Mock)",
+			Usage:       "Set the database connection parameters (0 - Redis | 1 - MongoDB | 2 - MySQL | 3 - SQLite | 4 - Mock)",
 			Destination: &db,
 		},
 		cli.StringFlag{
