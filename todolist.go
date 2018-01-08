@@ -16,6 +16,7 @@ var (
 func main() {
 	// Get DAO Redis
 	taskDAO = dao.GetDAO(dao.RedisDAO)
+
 	// New Controller
 	taskController = web.NewTaskController(taskDAO)
 
