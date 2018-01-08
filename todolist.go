@@ -3,11 +3,21 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"go-backend-sample/dao"
 	"go-backend-sample/web"
+)
+
+var (
+	taskDAO dao.TaskDAO
+	taskController *web.TaskController
 )
 
 // Main
 func main() {
+
+	taskDAO = dao.GetDAO()
+
+	taskController = web.NewTaskController(taskDAO)
 
 	http.HandleFunc("/", welcomeHandler)
 
@@ -27,13 +37,13 @@ func welcomeHandler(w http.ResponseWriter, r *http.Request) {
 func tasksHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
-		web.GetTask(w, r)
+		taskController.GetTask(w, r)
 	case "PUT":
-		web.UpdateTask(w, r)
+		taskController.UpdateTask(w, r)
 	case "POST":
-		web.CreateTask(w, r)
+		taskController.CreateTask(w, r)
 	case "DELETE":
-		web.DeleteTask(w, r)
+		taskController.DeleteTask(w, r)
 	default:
 		fmt.Fprintf(w, "Sorry only GET, POST, PUT and DELETE methods are supported.")
 	}
