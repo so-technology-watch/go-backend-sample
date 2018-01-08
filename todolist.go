@@ -29,7 +29,7 @@ func main() {
 	flag.Parse()
 
 	// Get DAO Redis
-	taskDAO, err := dao.GetDAO(dao.DBType(db))
+	taskDAO, err := dao.GetDAO(dao.DBType(db), dbFile)
 	if err != nil {
 		fmt.Println(err)
 	}
