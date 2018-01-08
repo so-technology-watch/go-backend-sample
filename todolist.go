@@ -35,34 +35,11 @@ func main() {
 	}
 
 	// New Controller
-	taskController = web.NewTaskController(taskDAO)
+	taskCtrl := web.NewTaskController(taskDAO)
 
-	http.HandleFunc("/", welcomeHandler)
-
-	// Tasks Handler
-	http.HandleFunc("/tasks", tasksHandler)
-
+	// New Router
+	router := web.NewRouter(taskCtrl)
+	
 	fmt.Println("Starting web server on port : " + strconv.Itoa(port))
-	http.ListenAndServe(":"+strconv.Itoa(port), nil)
-}
-
-// Welcome handler
-func welcomeHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Welcome !")
-}
-
-// Tasks handler
-func tasksHandler(w http.ResponseWriter, r *http.Request) {
-	switch r.Method {
-	case "GET":
-		taskController.GetTask(w, r)
-	case "PUT":
-		taskController.UpdateTask(w, r)
-	case "POST":
-		taskController.CreateTask(w, r)
-	case "DELETE":
-		taskController.DeleteTask(w, r)
-	default:
-		fmt.Fprintf(w, "Sorry only GET, POST, PUT and DELETE methods are supported.")
-	}
+	http.ListenAndServe(":"+strconv.Itoa(port), router)
 }
