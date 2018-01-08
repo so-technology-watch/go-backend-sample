@@ -1,97 +1,41 @@
 package main
 
 import (
-	"github.com/sirupsen/logrus"
-	"github.com/urfave/negroni"
-	"go-backend-sample/dao"
-	"go-backend-sample/utils"
-	"go-backend-sample/web"
-	"gopkg.in/urfave/cli.v1"
-	"os"
-	"strconv"
+	"fmt"
+	"net/http"
+	"go-backend-sample/model"
+	"encoding/json"
 	"time"
 )
 
-var (
-	Version   string
-	BuildStmp string
-	GitHash   string
-
-	port         = 8020
-	logLevel     = "warning"
-	db           = 4
-	dbConfigFile = ""
-)
-
+// Main
 func main() {
-	app := cli.NewApp()
-	app.Name = utils.AppName
-	app.Usage = "todolist service launcher"
+	http.HandleFunc("/", welcomeHandler) 
+	
+	http.HandleFunc("/tasks", tasksHandler)
+	
+    fmt.Println("Starting web server...")
+	http.ListenAndServe(":8020", nil)    
+}
 
-	timeStmp, err := strconv.Atoi(BuildStmp)
-	if err != nil {
-		timeStmp = 0
+// Welcome handler
+func welcomeHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Welcome !")
+}
+
+// Tasks handler
+func tasksHandler(w http.ResponseWriter, r *http.Request) {
+	task := model.Task{
+		Id:          	"1",
+		Title:       	"Title Test",
+		Description: 	"Description Test",
+		Status: 		0,
+		CreationDate:	time.Now(),
 	}
-	app.Version = Version + ", build on " + time.Unix(int64(timeStmp), 0).String() + ", git hash " + GitHash
-	app.Authors = []cli.Author{{Name: "xma"}}
-	app.Copyright = "Copyright " + strconv.Itoa(time.Now().Year())
-
-	app.Flags = []cli.Flag{
-		cli.IntFlag{
-			Value:       port,
-			Name:        "port, p",
-			Usage:       "Set the listening port of the webserver",
-			Destination: &port,
-		},
-		cli.StringFlag{
-			Value:       logLevel,
-			Name:        "logl, l",
-			Usage:       "Set the output log level (debug, info, warning, error)",
-			Destination: &logLevel,
-		},
-		cli.IntFlag{
-			Value:       db,
-			Name:        "database, d",
-			Usage:       "Set the database connection parameters (0 - Redis | 1 - MongoDB | 2 - MySQL | 3 - SQLite | 4 - Mock)",
-			Destination: &db,
-		},
-		cli.StringFlag{
-			Value:       dbConfigFile,
-			Name:        "file, f",
-			Usage:       "Set the path of database connection parameters file",
-			Destination: &dbConfigFile,
-		},
-	}
-
-	app.Action = func(c *cli.Context) error {
-		err := utils.InitLog(logLevel)
-		if err != nil {
-			logrus.Warn("error setting log level, using debug as default")
-		}
-
-		taskDAO, err := dao.GetDAO(dao.DBType(db), dbConfigFile)
-		if err != nil {
-			logrus.WithField("db", db).WithField("dbConfigFile", dbConfigFile).Error("unable to build the required DAO")
-		}
-
-		recovery := negroni.NewRecovery()
-		recovery.PrintStack = false
-
-		webServer := negroni.New()
-		webServer.Use(recovery)
-
-		// add middleware n.Use()
-		taskCtrl := web.NewTaskController(taskDAO)
-		router := web.NewRouter(taskCtrl)
-
-		webServer.UseHandler(router)
-		webServer.Run(":" + strconv.Itoa(port))
-
-		return nil
-	}
-
-	err = app.Run(os.Args)
-	if err != nil {
-		logrus.Error("run error %q\n", err)
+	
+	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(task); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
