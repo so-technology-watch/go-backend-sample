@@ -8,7 +8,7 @@ import (
 )
 
 func TestTaskDAORedis(t *testing.T) {
-	taskDao, err := dao.GetDAO(dao.RedisDAO)
+	taskDao, err := dao.GetDAO(dao.RedisDAO, "")
 	if err != nil {
 		t.Error(err)
 	}
