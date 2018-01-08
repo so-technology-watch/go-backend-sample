@@ -1,59 +1,103 @@
 package main
 
 import (
-	"flag"
 	"go-backend-sample/dao"
 	"go-backend-sample/web"
 	"go-backend-sample/logger"
-	"strconv"
 	"github.com/urfave/negroni"
 	"github.com/sirupsen/logrus"
+	"gopkg.in/urfave/cli.v1"
+	"os"
+	"strconv"
+	"time"
 )
 
 var (
-	taskDAO        dao.TaskDAO
-	taskController *web.TaskController
+	Version string
+	BuildStmp string
+	GitHash string
 
-	port, db int
-	dbFile, logLevel string
+	port               = 8020
+	logLevel           = "warning"
+	db                 = 1
+	dbConfigFile       = ""
 )
 
 // Main
 func main() {
-	// Get arguments
-	flag.IntVar(&port, "p", 8020, "webserver port")
-	flag.IntVar(&db, "db", 1, "database (0 - Redis | 1 - Mock)")
-	flag.StringVar(&dbFile, "dbFile", "", "config file path")
-	flag.StringVar(&logLevel, "log", "debug", "log level")
+	app := cli.NewApp()
+	app.Name = logger.AppName
+	app.Usage = "todolist service launcher"
 
-	// Parse arguments
-	flag.Parse()
-
-	// Initialisation log
-	err := logger.InitLog(logLevel)
+	timeStmp, err := strconv.Atoi(BuildStmp)
 	if err != nil {
-		logrus.Warn("error setting log level, using debug as default")
+		timeStmp = 0
+	}
+	app.Version = Version + ", build on " + time.Unix(int64(timeStmp), 0).String() + ", git hash " + GitHash
+	app.Authors = []cli.Author{{Name: "xma"}}
+	app.Copyright = "Copyright " + strconv.Itoa(time.Now().Year())
+
+	// command line flags
+	app.Flags = []cli.Flag{
+		cli.IntFlag{
+			Value:       port,
+			Name:        "port, p",
+			Usage:       "Set the listening port of the webserver",
+			Destination: &port,
+		},
+		cli.StringFlag{
+			Value:       logLevel,
+			Name:        "logl, l",
+			Usage:       "Set the output log level (debug, info, warning, error)",
+			Destination: &logLevel,
+		},
+		cli.IntFlag{
+			Value:       db,
+			Name:        "database, d",
+			Usage:       "Set the database connection parameters (0 - Redis | 1 - MongoDB | 2 - Mock)",
+			Destination: &db,
+		},
+		cli.StringFlag{
+			Value:       dbConfigFile,
+			Name:        "file, f",
+			Usage:       "Set the path of database connection parameters file",
+			Destination: &dbConfigFile,
+		},
 	}
 
-	// Get DAO Redis
-	taskDAO, err := dao.GetDAO(dao.DBType(db), dbFile)
-	if err != nil {
-		logrus.WithField("db", db).WithField("dbFile", dbFile).Error("unable to build the required DAO")
+	app.Action = func(c *cli.Context) error {
+
+		err := logger.InitLog(logLevel)
+		if err != nil {
+			logrus.Warn("error setting log level, using debug as default")
+		}
+
+		taskDAO, err := dao.GetDAO(dao.DBType(db), dbConfigFile)
+		if err != nil {
+			logrus.WithField("db", db).WithField("dbConfigFile", dbConfigFile).Error("unable to build the required DAO")
+		}
+
+		webServer := negroni.New()
+
+		recovery := negroni.NewRecovery()
+		recovery.PrintStack = false
+		webServer.Use(recovery)
+
+		// add middleware n.Use()
+
+		taskCtrl := web.NewTaskController(taskDAO)
+
+		router := web.NewRouter(taskCtrl)
+
+		webServer.UseHandler(router)
+
+		webServer.Run(":" + strconv.Itoa(port))
+
+		return nil
 	}
 
-	// New webserver
-	webServer := negroni.New()
-
-	recovery := negroni.NewRecovery()
-	recovery.PrintStack = false
-	webServer.Use(recovery)
-
-	// New controller
-	taskCtrl := web.NewTaskController(taskDAO)
-
-	// New Router
-	router := web.NewRouter(taskCtrl)
-
-	webServer.UseHandler(router)
-	webServer.Run(":" + strconv.Itoa(port))
+	err = app.Run(os.Args)
+	if err != nil {
+		logrus.Error("run error %q\n", err)
+	}
 }
