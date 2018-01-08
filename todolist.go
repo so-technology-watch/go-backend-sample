@@ -2,11 +2,12 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"go-backend-sample/dao"
 	"go-backend-sample/web"
+	"go-backend-sample/logger"
 	"strconv"
 	"github.com/urfave/negroni"
+	"github.com/sirupsen/logrus"
 )
 
 var (
@@ -28,10 +29,16 @@ func main() {
 	// Parse arguments
 	flag.Parse()
 
+	// Initialisation log
+	err := logger.InitLog(logLevel)
+	if err != nil {
+		logrus.Warn("error setting log level, using debug as default")
+	}
+
 	// Get DAO Redis
 	taskDAO, err := dao.GetDAO(dao.DBType(db), dbFile)
 	if err != nil {
-		fmt.Println(err)
+		logrus.WithField("db", db).WithField("dbFile", dbFile).Error("unable to build the required DAO")
 	}
 
 	// New webserver

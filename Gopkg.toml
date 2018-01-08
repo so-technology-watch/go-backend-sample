@@ -5,7 +5,7 @@
 [[constraint]]
   name = "github.com/urfave/negroni"
   version = "0.3.0"
-  
+
 [[constraint]]
   name = "github.com/satori/go.uuid"
   version = "1.1.0"
@@ -13,3 +13,7 @@
 [[constraint]]
   name = "gopkg.in/redis.v5"
   version = "5.2.9"
+  
+[[constraint]]
+  name = "github.com/sirupsen/logrus"
+  version = "1.0.3"
