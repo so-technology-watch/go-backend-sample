@@ -3,6 +3,7 @@ package dao
 import (
 	"gopkg.in/redis.v5"
 	"fmt"
+	"errors"
 )
 
 type DBType int
@@ -15,15 +16,15 @@ const (
 )
 
 // GetDAO returns a TaskDAO according to type and params
-func GetDAO(daoType DBType) TaskDAO {
+func GetDAO(daoType DBType) (TaskDAO, error) {
 	switch daoType {
 	case RedisDAO:
 		redisCli := initRedis()
-		return NewTaskDAORedis(redisCli)
+		return NewTaskDAORedis(redisCli), nil
 	case MockDAO:
-		return NewTaskDAOMock()
+		return NewTaskDAOMock(), nil
 	default:
-		return nil
+		return nil, errors.New("unknown DAO type")
 	}
 }
 

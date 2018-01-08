@@ -15,13 +15,15 @@ var (
 // Main
 func main() {
 	// Get DAO Redis
-	taskDAO = dao.GetDAO(dao.RedisDAO)
-	// New Controller
+	taskDAO, err := dao.GetDAO(dao.RedisDAO)
+	if err != nil {
+		fmt.Println(err)
+	}
+	
+	// New controller
 	taskController = web.NewTaskController(taskDAO)
 
 	http.HandleFunc("/", welcomeHandler)
-
-	// Tasks Handler
 	http.HandleFunc("/tasks", tasksHandler)
 
 	fmt.Println("Starting web server...")
