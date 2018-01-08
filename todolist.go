@@ -8,15 +8,15 @@ import (
 )
 
 var (
-	taskDAO dao.TaskDAO
+	taskDAO        dao.TaskDAO
 	taskController *web.TaskController
 )
 
 // Main
 func main() {
-
-	taskDAO = dao.GetDAO()
-
+	// Get DAO Redis
+	taskDAO = dao.GetDAO(dao.RedisDAO)
+	// New Controller
 	taskController = web.NewTaskController(taskDAO)
 
 	http.HandleFunc("/", welcomeHandler)
