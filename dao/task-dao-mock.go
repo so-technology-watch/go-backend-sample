@@ -8,6 +8,13 @@ import (
 
 var _ TaskDAO = (*TaskDAOMock)(nil)
 
+// MockedTask is the task returned by this mocked interface
+var MockedTask = model.Task{
+	Id:          uuid.NewV4().String(),
+	Title:       "TestMock",
+	Description: "TestMock",
+}
+
 // TaskDAOMock is the mocked implementation of the TaskDAO
 type TaskDAOMock struct {
 	storage map[string]*model.Task
@@ -18,6 +25,9 @@ func NewTaskDAOMock() TaskDAO {
 	daoMock := &TaskDAOMock{
 		storage: make(map[string]*model.Task),
 	}
+
+	// Adds some fake data
+	daoMock.Upsert(&MockedTask)
 
 	return daoMock
 }

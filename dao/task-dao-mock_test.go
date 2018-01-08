@@ -9,7 +9,10 @@ import (
 
 func TestTaskDAOMock(t *testing.T) {
 
-	taskDaoMock := dao.GetDAO(dao.MockDAO)
+	taskDaoMock, err := dao.GetDAO(dao.MockDAO)
+	if err != nil {
+		t.Error(err)
+	}
 
 	taskToSave := model.Task{
 		Id:          uuid.NewV4().String(),
