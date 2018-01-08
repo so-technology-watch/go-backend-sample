@@ -1,11 +1,11 @@
 package web
 
 import (
+	"github.com/sirupsen/logrus"
 	"go-backend-sample/dao"
 	"go-backend-sample/model"
 	"net/http"
 	"time"
-	"fmt"
 )
 
 const (
@@ -64,26 +64,26 @@ func NewTaskController(taskDAO dao.TaskDAO) *TaskController {
 // Get retrieve a task by its id
 func (ctrl *TaskController) GetTask(w http.ResponseWriter, r *http.Request) {
 	taskId := ParamAsString("id", r)
-	fmt.Println("task : ", taskId)
+	logrus.Println("task : ", taskId)
 
 	task, err := ctrl.taskDao.Get(taskId)
 	if err != nil {
-		fmt.Println(err)
+		logrus.Error(err)
 		SendJSONError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	fmt.Println("task : ", task)
+	logrus.Println("task : ", task)
 	SendJSONOk(w, task)
 }
 
 // Create create a task
 func (ctrl *TaskController) CreateTask(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("create task")
+	logrus.Println("create task")
 	task := &model.Task{}
 	err := GetJSONContent(task, r)
 	if err != nil {
-		fmt.Println(err)
+		logrus.Error(err)
 		SendJSONError(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -93,12 +93,12 @@ func (ctrl *TaskController) CreateTask(w http.ResponseWriter, r *http.Request) {
 
 	task, err = ctrl.taskDao.Upsert(task)
 	if err != nil {
-		fmt.Println(err)
+		logrus.Error(err)
 		SendJSONError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	fmt.Println("task : ", task)
+	logrus.Println("task : ", task)
 	SendJSONWithHTTPCode(w, task, http.StatusCreated)
 }
 
@@ -107,18 +107,18 @@ func (ctrl *TaskController) UpdateTask(w http.ResponseWriter, r *http.Request) {
 	task := &model.Task{}
 	err := GetJSONContent(task, r)
 	if err != nil {
-		fmt.Println(err)
+		logrus.Error(err)
 		SendJSONError(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	fmt.Println("update task : ", task.Id)
+	logrus.Println("update task : ", task.Id)
 
 	task.ModificationDate = time.Now()
 
 	taskExist, err := ctrl.taskDao.Exist(task.Id)
 	if err != nil {
-		fmt.Println(err)
+		logrus.Error(err)
 		SendJSONError(w, err.Error(), http.StatusNotFound)
 		return
 	} else if taskExist == false {
@@ -128,27 +128,27 @@ func (ctrl *TaskController) UpdateTask(w http.ResponseWriter, r *http.Request) {
 
 	task, err = ctrl.taskDao.Upsert(task)
 	if err != nil {
-		fmt.Println(err)
+		logrus.Error(err)
 		SendJSONError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	fmt.Println("task : ", task)
+	logrus.Println("task : ", task)
 	SendJSONOk(w, task)
 }
 
 // Delete delete a task by its id
 func (ctrl *TaskController) DeleteTask(w http.ResponseWriter, r *http.Request) {
 	taskId := ParamAsString("id", r)
-	fmt.Println("delete task : ", taskId)
+	logrus.Println("delete task : ", taskId)
 
 	err := ctrl.taskDao.Delete(taskId)
 	if err != nil {
-		fmt.Println(err)
+		logrus.Error(err)
 		SendJSONError(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	fmt.Println("deleted task : ", taskId)
+	logrus.Println("deleted task : ", taskId)
 	SendJSONWithHTTPCode(w, nil, http.StatusNoContent)
 }

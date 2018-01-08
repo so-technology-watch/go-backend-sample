@@ -2,9 +2,9 @@ package dao
 
 import (
 	"errors"
-	"fmt"
 	"gopkg.in/redis.v5"
 	"github.com/BurntSushi/toml"
+	"github.com/sirupsen/logrus"
 )
 
 type DBType int
@@ -46,7 +46,7 @@ func GetDAO(daoType DBType, dbConfigFile string) (TaskDAO, error) {
 
 // Initialize Redis database
 func initRedis(dbConfig DBConfig) *redis.Client {
-	fmt.Println("redis connexion " + dbConfig.Url)
+	logrus.Println("redis connexion " + dbConfig.Url)
 
 	// Connection to the Redis database
 	redisCli := redis.NewClient(&redis.Options{
@@ -58,10 +58,10 @@ func initRedis(dbConfig DBConfig) *redis.Client {
 	// Verification of connection
 	ok, err := redisCli.Ping().Result()
 	if err != nil {
-		fmt.Println("redis connexion KO :", err)
+		logrus.Error("redis connexion error :", err.Error())
 		panic(err)
 	} else {
-		fmt.Println("redis connexion OK :", ok)
+		logrus.Println("redis connexion OK :", ok)
 	}
 
 	return redisCli
@@ -73,7 +73,7 @@ func getConfig(dbConfigFile string) DBConfig {
 		config = redisLocalConfig
 	} else {
 		if _, err := toml.DecodeFile(dbConfigFile, &config); err != nil {
-			fmt.Println("configuration file error :", err)
+			logrus.Error("connexion parameters error :", err)
 			panic(err)
 		}
 	}
