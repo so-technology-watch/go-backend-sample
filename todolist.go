@@ -3,10 +3,10 @@ package main
 import (
 	"flag"
 	"fmt"
-	"net/http"
 	"go-backend-sample/dao"
 	"go-backend-sample/web"
 	"strconv"
+	"github.com/urfave/negroni"
 )
 
 var (
@@ -34,12 +34,19 @@ func main() {
 		fmt.Println(err)
 	}
 
-	// New Controller
+	// New webserver
+	webServer := negroni.New()
+
+	recovery := negroni.NewRecovery()
+	recovery.PrintStack = false
+	webServer.Use(recovery)
+
+	// New controller
 	taskCtrl := web.NewTaskController(taskDAO)
 
 	// New Router
 	router := web.NewRouter(taskCtrl)
-	
-	fmt.Println("Starting web server on port : " + strconv.Itoa(port))
-	http.ListenAndServe(":"+strconv.Itoa(port), router)
+
+	webServer.UseHandler(router)
+	webServer.Run(":" + strconv.Itoa(port))
 }
