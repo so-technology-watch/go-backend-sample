@@ -8,7 +8,10 @@ import (
 )
 
 func TestTaskDAORedis(t *testing.T) {
-	taskDao := dao.GetDAO(dao.RedisDAO)
+	taskDao, err := dao.GetDAO(dao.RedisDAO)
+	if err != nil {
+		t.Error(err)
+	}
 
 	taskToSave := model.Task{
 		Id:          uuid.NewV4().String(),
