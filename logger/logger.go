@@ -1,16 +1,13 @@
-package utils
+package logger
 
 import (
-	"github.com/sirupsen/logrus"
 	"os"
+
+	"github.com/sirupsen/logrus"
 )
 
-const (
-	AppName = "todolist"
-)
-
+// InitLog initialize the logger
 func InitLog(logLevel string) error {
-
 	logrus.SetFormatter(&logrus.TextFormatter{
 		ForceColors:   true,
 		FullTimestamp: true,

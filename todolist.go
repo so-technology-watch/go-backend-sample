@@ -4,12 +4,16 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/negroni"
 	"go-backend-sample/dao"
-	"go-backend-sample/utils"
+	"go-backend-sample/logger"
 	"go-backend-sample/web"
 	"gopkg.in/urfave/cli.v1"
 	"os"
 	"strconv"
 	"time"
+)
+
+const (
+	AppName = "todolist"
 )
 
 var (
@@ -25,7 +29,7 @@ var (
 
 func main() {
 	app := cli.NewApp()
-	app.Name = utils.AppName
+	app.Name = AppName
 	app.Usage = "todolist service launcher"
 
 	timeStmp, err := strconv.Atoi(BuildStmp)
@@ -64,7 +68,7 @@ func main() {
 	}
 
 	app.Action = func(c *cli.Context) error {
-		err := utils.InitLog(logLevel)
+		err := logger.InitLog(logLevel)
 		if err != nil {
 			logrus.Warn("error setting log level, using debug as default")
 		}
