@@ -3,9 +3,10 @@ package dao
 import (
 	"encoding/json"
 	"errors"
+	"go-backend-sample/model"
+
 	"github.com/satori/go.uuid"
 	"github.com/sirupsen/logrus"
-	"go-backend-sample/model"
 	"gopkg.in/redis.v5"
 )
 

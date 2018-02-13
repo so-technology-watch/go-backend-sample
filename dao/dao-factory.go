@@ -3,18 +3,23 @@ package dao
 import (
 	"database/sql"
 	"errors"
+	"os"
+	"time"
+
 	"github.com/BurntSushi/toml"
+	// driver mysql
 	_ "github.com/go-sql-driver/mysql"
+	// driver sqlite
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/redis.v5"
-	"os"
-	"time"
 )
 
+// DBType is the database type
 type DBType int
 
+// DBConfig is the database configuration
 type DBConfig struct {
 	Url      string
 	Port     string
@@ -31,9 +36,9 @@ const (
 	SQLiteDAO
 	MockDAO
 
-	// mongo timeout
-	timeout = 5 * time.Second
-	// poolSize of mongo connection pool
+	AppName = "Todolist"
+
+	timeout  = 5 * time.Second
 	poolSize = 35
 )
 
@@ -70,8 +75,7 @@ var (
 		`CREATE DATABASE IF NOT EXISTS todolist DEFAULT CHARACTER SET = 'utf8' DEFAULT COLLATE 'utf8_general_ci';`,
 		`USE todolist;`,
 	}
-	createTableSQLStatement = 
-		`CREATE TABLE IF NOT EXISTS task (
+	createTableSQLStatement = `CREATE TABLE IF NOT EXISTS task (
 			id VARCHAR(50) NOT NULL,
 			title VARCHAR(100) NULL,
 			description VARCHAR(500) NULL,
@@ -82,6 +86,7 @@ var (
 		)`
 )
 
+// GetDAO get TaskDAO
 func GetDAO(daoType DBType, dbConfigFile string) (TaskDAO, error) {
 	switch daoType {
 	case RedisDAO:
@@ -155,18 +160,18 @@ func initMongo(dbConfig DBConfig) *mgo.Session {
 func initMySQL(dbConfig DBConfig) *sql.DB {
 	logrus.Println("mysql connexion " + dbConfig.Url)
 
-	mySQlSession, err := sql.Open("mysql", dbConfig.User+":"+dbConfig.Password+"@tcp("+dbConfig.Url+":"+dbConfig.Port+")/"+dbConfig.Database+"?parseTime=true")
+	mySQLSession, err := sql.Open("mysql", dbConfig.User+":"+dbConfig.Password+"@tcp("+dbConfig.Url+":"+dbConfig.Port+")/"+dbConfig.Database+"?parseTime=true")
 	if err != nil {
 		logrus.Error("mysql connexion error :", err.Error())
 		panic(err.Error())
 	}
-	err = mySQlSession.Ping()
+	err = mySQLSession.Ping()
 	if err != nil {
 		logrus.Error("mysql connexion error :", err.Error())
 		panic(err.Error())
 	}
 
-	return mySQlSession
+	return mySQLSession
 }
 
 func initSQLite(dbConfig DBConfig) *sql.DB {
