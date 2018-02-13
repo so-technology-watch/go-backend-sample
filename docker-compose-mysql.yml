@@ -9,7 +9,7 @@ todolist-mysql:
     - mysql
   ports:
     - "8020:8020"
-  command: -p 8020 -l info -d 2
+  command: -p 8020 -l info -d 3
 
 # bdd mysql
 mysql:

@@ -3,18 +3,25 @@ package dao
 import (
 	"database/sql"
 	"errors"
-	"github.com/BurntSushi/toml"
-	_ "github.com/go-sql-driver/mysql"
-	_ "github.com/mattn/go-sqlite3"
-	"github.com/sirupsen/logrus"
-	"gopkg.in/mgo.v2"
-	"gopkg.in/redis.v5"
 	"os"
 	"time"
+
+	"cloud.google.com/go/datastore"
+	"github.com/BurntSushi/toml"
+	// driver mysql
+	_ "github.com/go-sql-driver/mysql"
+	// driver sqlite
+	_ "github.com/mattn/go-sqlite3"
+	"github.com/sirupsen/logrus"
+	"golang.org/x/net/context"
+	"gopkg.in/mgo.v2"
+	"gopkg.in/redis.v5"
 )
 
+// DBType is the database type
 type DBType int
 
+// DBConfig is the database configuration
 type DBConfig struct {
 	Url      string
 	Port     string
@@ -27,13 +34,14 @@ type DBConfig struct {
 const (
 	RedisDAO DBType = iota
 	MongoDAO
+	DatastoreDAO
 	MySQLDAO
 	SQLiteDAO
 	MockDAO
 
-	// mongo timeout
-	timeout = 5 * time.Second
-	// poolSize of mongo connection pool
+	AppName = "Todolist"
+
+	timeout  = 5 * time.Second
 	poolSize = 35
 )
 
@@ -70,8 +78,7 @@ var (
 		`CREATE DATABASE IF NOT EXISTS todolist DEFAULT CHARACTER SET = 'utf8' DEFAULT COLLATE 'utf8_general_ci';`,
 		`USE todolist;`,
 	}
-	createTableSQLStatement = 
-		`CREATE TABLE IF NOT EXISTS task (
+	createTableSQLStatement = `CREATE TABLE IF NOT EXISTS task (
 			id VARCHAR(50) NOT NULL,
 			title VARCHAR(100) NULL,
 			description VARCHAR(500) NULL,
@@ -82,6 +89,7 @@ var (
 		)`
 )
 
+// GetDAO get TaskDAO
 func GetDAO(daoType DBType, dbConfigFile string) (TaskDAO, error) {
 	switch daoType {
 	case RedisDAO:
@@ -92,6 +100,9 @@ func GetDAO(daoType DBType, dbConfigFile string) (TaskDAO, error) {
 		config := getConfig(MongoDAO, dbConfigFile)
 		mongoSession := initMongo(config)
 		return NewTaskDAOMongo(mongoSession), nil
+	case DatastoreDAO:
+		clientDatastore := initDatastore()
+		return NewTaskDAODatastore(clientDatastore), nil
 	case MySQLDAO:
 		config := getConfig(MySQLDAO, dbConfigFile)
 		mySQLSession := initMySQL(config)
@@ -108,6 +119,30 @@ func GetDAO(daoType DBType, dbConfigFile string) (TaskDAO, error) {
 	default:
 		return nil, ErrorDAONotFound
 	}
+}
+
+func initDatastore() *datastore.Client {
+	logrus.Println("datastore connexion ")
+	ctx := context.Background()
+
+	// connection to the Datastore
+	client, err := datastore.NewClient(ctx, AppName)
+	if err != nil {
+		logrus.Error("datastore connexion error :", err)
+		panic(err)
+	}
+
+	// verification of connection
+	t, err := client.NewTransaction(ctx)
+	if err != nil {
+		logrus.Error("datastore connexion error :", err)
+		panic(err)
+	}
+	if err := t.Rollback(); err != nil {
+		logrus.Error("datastore connexion error :", err)
+		panic(err)
+	}
+	return client
 }
 
 func initRedis(dbConfig DBConfig) *redis.Client {
@@ -155,18 +190,18 @@ func initMongo(dbConfig DBConfig) *mgo.Session {
 func initMySQL(dbConfig DBConfig) *sql.DB {
 	logrus.Println("mysql connexion " + dbConfig.Url)
 
-	mySQlSession, err := sql.Open("mysql", dbConfig.User+":"+dbConfig.Password+"@tcp("+dbConfig.Url+":"+dbConfig.Port+")/"+dbConfig.Database+"?parseTime=true")
+	mySQLSession, err := sql.Open("mysql", dbConfig.User+":"+dbConfig.Password+"@tcp("+dbConfig.Url+":"+dbConfig.Port+")/"+dbConfig.Database+"?parseTime=true")
 	if err != nil {
 		logrus.Error("mysql connexion error :", err.Error())
 		panic(err.Error())
 	}
-	err = mySQlSession.Ping()
+	err = mySQLSession.Ping()
 	if err != nil {
 		logrus.Error("mysql connexion error :", err.Error())
 		panic(err.Error())
 	}
 
-	return mySQlSession
+	return mySQLSession
 }
 
 func initSQLite(dbConfig DBConfig) *sql.DB {

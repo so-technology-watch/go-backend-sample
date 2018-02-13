@@ -1,19 +1,16 @@
 package main
 
 import (
-	"github.com/sirupsen/logrus"
-	"github.com/urfave/negroni"
 	"go-backend-sample/dao"
 	"go-backend-sample/logger"
 	"go-backend-sample/web"
-	"gopkg.in/urfave/cli.v1"
 	"os"
 	"strconv"
 	"time"
-)
 
-const (
-	AppName = "todolist"
+	"github.com/sirupsen/logrus"
+	"github.com/urfave/negroni"
+	"gopkg.in/urfave/cli.v1"
 )
 
 var (
@@ -29,7 +26,7 @@ var (
 
 func main() {
 	app := cli.NewApp()
-	app.Name = AppName
+	app.Name = dao.AppName
 	app.Usage = "todolist service launcher"
 
 	timeStmp, err := strconv.Atoi(BuildStmp)

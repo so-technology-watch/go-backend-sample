@@ -2,8 +2,9 @@ package dao
 
 import (
 	"errors"
-	"github.com/satori/go.uuid"
 	"go-backend-sample/model"
+
+	"github.com/satori/go.uuid"
 )
 
 var _ TaskDAO = (*TaskDAOMock)(nil)
@@ -33,8 +34,8 @@ func NewTaskDAOMock() TaskDAO {
 }
 
 // Get return a task by its id
-func (s *TaskDAOMock) Get(id string) (*model.Task, error) {
-	task, ok := s.storage[id]
+func (dao *TaskDAOMock) Get(id string) (*model.Task, error) {
+	task, ok := dao.storage[id]
 	if !ok {
 		return nil, errors.New("task not found with id " + id)
 	}
@@ -42,54 +43,54 @@ func (s *TaskDAOMock) Get(id string) (*model.Task, error) {
 }
 
 // GetAll return all tasks
-func (s *TaskDAOMock) GetAll() ([]model.Task, error) {
+func (dao *TaskDAOMock) GetAll() ([]model.Task, error) {
 	var tasks []model.Task
-	for taskId := range s.storage {
-		task := s.storage[taskId]
+	for taskId := range dao.storage {
+		task := dao.storage[taskId]
 		tasks = append(tasks, *task)
 	}
 	return tasks, nil
 }
 
 // Upsert update or create a task
-func (s *TaskDAOMock) Upsert(task *model.Task) (*model.Task, error) {
+func (dao *TaskDAOMock) Upsert(task *model.Task) (*model.Task, error) {
 	if task.Id == "" {
 		task.Id = uuid.NewV4().String()
 	}
-	s.save(task)
+	dao.save(task)
 	return task, nil
 }
 
 // Delete delete a task by its id
-func (s *TaskDAOMock) Delete(id string) error {
-	delete(s.storage, id)
+func (dao *TaskDAOMock) Delete(id string) error {
+	delete(dao.storage, id)
 	return nil
 }
 
 // DeleteAll deletes all tasks
-func (s *TaskDAOMock) DeleteAll() error {
-	for taskId := range s.storage {
-		delete(s.storage, taskId)
+func (dao *TaskDAOMock) DeleteAll() error {
+	for taskId := range dao.storage {
+		delete(dao.storage, taskId)
 	}
 	return nil
 }
 
 // Exist check if the task exist
-func (s *TaskDAOMock) Exist(id string) (bool, error) {
-	if s.storage[id] != nil {
+func (dao *TaskDAOMock) Exist(id string) (bool, error) {
+	if dao.storage[id] != nil {
 		return true, nil
 	}
 	return false, errors.New("task not found with id " + id)
 }
 
 // save the task
-func (s *TaskDAOMock) save(task *model.Task) *model.Task {
-	s.storage[task.Id] = task
+func (dao *TaskDAOMock) save(task *model.Task) *model.Task {
+	dao.storage[task.Id] = task
 	return task
 }
 
 // get a task by its id
-func (s *TaskDAOMock) get(id string) *model.Task {
-	task := s.storage[id]
+func (dao *TaskDAOMock) get(id string) *model.Task {
+	task := dao.storage[id]
 	return task
 }

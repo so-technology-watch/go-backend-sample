@@ -4,6 +4,7 @@ import (
 	"go-backend-sample/model"
 )
 
+// TaskDAO is the interface for Task
 type TaskDAO interface {
 	Get(id string) (*model.Task, error)
 
