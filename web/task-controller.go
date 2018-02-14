@@ -2,8 +2,8 @@ package web
 
 import (
 	"encoding/json"
-	"net/http"
 	"go-backend-sample/model"
+	"net/http"
 )
 
 // Get retrieve a task by its id
@@ -20,7 +20,7 @@ func GetTask(w http.ResponseWriter, r *http.Request) {
 // Update update a task by its id
 func UpdateTask(w http.ResponseWriter, r *http.Request) {
 	task := &model.Task{}
-	err := json.NewDecoder(r.Body).Decode(&task)
+	err := json.NewDecoder(r.Body).Decode(task)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -36,7 +36,7 @@ func UpdateTask(w http.ResponseWriter, r *http.Request) {
 // Create create a task
 func CreateTask(w http.ResponseWriter, r *http.Request) {
 	task := &model.Task{}
-	err := json.NewDecoder(r.Body).Decode(&task)
+	err := json.NewDecoder(r.Body).Decode(task)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
