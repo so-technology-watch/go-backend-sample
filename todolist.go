@@ -18,9 +18,9 @@ var (
 	BuildStmp string
 	GitHash   string
 
-	port         = 8020
+	port         = 8080
 	logLevel     = "warning"
-	db           = 4
+	db           = 0
 	dbConfigFile = ""
 )
 
