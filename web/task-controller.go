@@ -42,7 +42,7 @@ func (ctrl *TaskController) GetTask(w http.ResponseWriter, r *http.Request) {
 // Update update a task by its id
 func (ctrl *TaskController) UpdateTask(w http.ResponseWriter, r *http.Request) {
 	task := &model.Task{}
-	err := json.NewDecoder(r.Body).Decode(&task)
+	err := json.NewDecoder(r.Body).Decode(task)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -75,7 +75,7 @@ func (ctrl *TaskController) UpdateTask(w http.ResponseWriter, r *http.Request) {
 // Create create a task
 func (ctrl *TaskController) CreateTask(w http.ResponseWriter, r *http.Request) {
 	task := &model.Task{}
-	err := json.NewDecoder(r.Body).Decode(&task)
+	err := json.NewDecoder(r.Body).Decode(task)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
