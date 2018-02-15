@@ -12,12 +12,14 @@ const (
 	prefixTask = "/tasks"
 )
 
+// TaskController define the controller for tasks
 type TaskController struct {
 	taskDao dao.TaskDAO
 	Routes  []Route
 	Prefix  string
 }
 
+// NewTaskController build the controller for tasks
 func NewTaskController(taskDAO dao.TaskDAO) *TaskController {
 	controller := TaskController{
 		taskDao: taskDAO,
@@ -73,7 +75,7 @@ func NewTaskController(taskDAO dao.TaskDAO) *TaskController {
 	return &controller
 }
 
-// GetAll retrieve all tasks
+// GetTasks retrieve all tasks
 func (ctrl *TaskController) GetTasks(w http.ResponseWriter, r *http.Request) {
 	logrus.Println("list tasks")
 
@@ -87,7 +89,7 @@ func (ctrl *TaskController) GetTasks(w http.ResponseWriter, r *http.Request) {
 	SendJSONOk(w, tasks)
 }
 
-// Get retrieve a task by its id
+// GetTask retrieve a task by its id
 func (ctrl *TaskController) GetTask(w http.ResponseWriter, r *http.Request) {
 	taskId := ParamAsString("id", r)
 	logrus.Println("task : ", taskId)
@@ -103,7 +105,7 @@ func (ctrl *TaskController) GetTask(w http.ResponseWriter, r *http.Request) {
 	SendJSONOk(w, task)
 }
 
-// Create create a task
+// CreateTask create a task
 func (ctrl *TaskController) CreateTask(w http.ResponseWriter, r *http.Request) {
 	task := &model.Task{}
 	logrus.Println(r.Body)
@@ -131,7 +133,7 @@ func (ctrl *TaskController) CreateTask(w http.ResponseWriter, r *http.Request) {
 	SendJSONWithHTTPCode(w, task, http.StatusCreated)
 }
 
-// Update update a task by its id
+// UpdateTask update a task by its id
 func (ctrl *TaskController) UpdateTask(w http.ResponseWriter, r *http.Request) {
 	task := &model.Task{}
 	err := GetJSONContent(task, r)
@@ -166,7 +168,7 @@ func (ctrl *TaskController) UpdateTask(w http.ResponseWriter, r *http.Request) {
 	SendJSONOk(w, task)
 }
 
-// Delete delete a task by its id
+// DeleteTask delete a task by its id
 func (ctrl *TaskController) DeleteTask(w http.ResponseWriter, r *http.Request) {
 	taskId := ParamAsString("id", r)
 	logrus.Println("delete task : ", taskId)
@@ -182,7 +184,7 @@ func (ctrl *TaskController) DeleteTask(w http.ResponseWriter, r *http.Request) {
 	SendJSONWithHTTPCode(w, nil, http.StatusNoContent)
 }
 
-// Delete delete all tasks
+// DeleteTasks delete all tasks
 func (ctrl *TaskController) DeleteTasks(w http.ResponseWriter, r *http.Request) {
 	logrus.Println("delete all tasks")
 

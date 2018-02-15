@@ -5,10 +5,12 @@ import (
 	"net/http"
 )
 
+// Router define the router
 type Router struct {
 	*mux.Router
 }
 
+// Route define a route
 type Route struct {
 	Name        string
 	Method      string
@@ -16,6 +18,7 @@ type Route struct {
 	HandlerFunc http.HandlerFunc
 }
 
+// NewRouter build a router and add routes
 func NewRouter(taskCtrl *TaskController) *Router {
 	router := Router{mux.NewRouter()}
 	router.NotFoundHandler = NotFoundHandler()
@@ -26,6 +29,7 @@ func NewRouter(taskCtrl *TaskController) *Router {
 	return &router
 }
 
+// AddTaskRoutes add the routes of tasks
 func AddTaskRoutes(taskCtrl *TaskController, router Router) {
 	for _, route := range taskCtrl.Routes {
 		router.
