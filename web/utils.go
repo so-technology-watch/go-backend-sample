@@ -9,6 +9,7 @@ import (
 const (
 	ResponseHeaderContentTypeKey      = "Content-Type"
 	ResponseHeaderContentTypeJSONUTF8 = "application/json; charset=UTF-8"
+	ResponseHeaderAccessControlAllowOrigin = "Access-Control-Allow-Origin"
 
 	resourceNotFound = "Resource not found"
 	errorMsg         = "Error"
@@ -17,6 +18,7 @@ const (
 // SendJSONWithHTTPCode outputs JSON with an HTTP code
 func SendJSONWithHTTPCode(w http.ResponseWriter, d interface{}, code int) {
 	w.Header().Set(ResponseHeaderContentTypeKey, ResponseHeaderContentTypeJSONUTF8)
+	w.Header().Set(ResponseHeaderAccessControlAllowOrigin, "*")
 	w.WriteHeader(code)
 	if d != nil {
 		err := json.NewEncoder(w).Encode(d)
