@@ -181,7 +181,7 @@ func (ctrl *TaskController) DeleteTask(w http.ResponseWriter, r *http.Request) {
 	}
 
 	logrus.Println("deleted task : ", taskId)
-	SendJSONWithHTTPCode(w, nil, http.StatusNoContent)
+	SendJSONWithHTTPCode(w, true, http.StatusNoContent)
 }
 
 // DeleteTasks delete all tasks
@@ -196,5 +196,5 @@ func (ctrl *TaskController) DeleteTasks(w http.ResponseWriter, r *http.Request) 
 	}
 
 	logrus.Println("all tasks deleted")
-	SendJSONWithHTTPCode(w, nil, http.StatusNoContent)
+	SendJSONWithHTTPCode(w, true, http.StatusNoContent)
 }
