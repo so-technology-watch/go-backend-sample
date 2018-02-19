@@ -66,7 +66,7 @@ func NewTaskController(taskDAO dao.TaskDAO) *TaskController {
 	routes = append(routes, Route{
 		Name:        "Delete all tasks",
 		Method:      http.MethodDelete,
-		Pattern:     "/",
+		Pattern:     "",
 		HandlerFunc: controller.DeleteTasks,
 	})
 
