@@ -1,11 +1,12 @@
 package web
 
 import (
-	"github.com/sirupsen/logrus"
 	"go-backend-sample/dao"
 	"go-backend-sample/model"
 	"net/http"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -43,21 +44,21 @@ func NewTaskController(taskDAO dao.TaskDAO) *TaskController {
 	})
 	// Create
 	routes = append(routes, Route{
-		Name:        "Create an task",
+		Name:        "Create a task",
 		Method:      http.MethodPost,
 		Pattern:     "",
 		HandlerFunc: controller.CreateTask,
 	})
 	// Update
 	routes = append(routes, Route{
-		Name:        "Update an task",
+		Name:        "Update a task",
 		Method:      http.MethodPut,
 		Pattern:     "/{id}",
 		HandlerFunc: controller.UpdateTask,
 	})
 	// Delete
 	routes = append(routes, Route{
-		Name:        "Delete an task",
+		Name:        "Delete a task",
 		Method:      http.MethodDelete,
 		Pattern:     "/{id}",
 		HandlerFunc: controller.DeleteTask,
@@ -197,4 +198,10 @@ func (ctrl *TaskController) DeleteTasks(w http.ResponseWriter, r *http.Request) 
 
 	logrus.Println("all tasks deleted")
 	SendJSONWithHTTPCode(w, true, http.StatusNoContent)
+}
+
+// PreflightTasks handles the preflight requests
+func PreflightTasks(w http.ResponseWriter, r *http.Request) {
+	logrus.Println("preflight request handled")
+	SendJSONOk(w, nil)
 }

@@ -1,8 +1,9 @@
 package web
 
 import (
-	"github.com/gorilla/mux"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 // Router define the router
@@ -25,6 +26,7 @@ func NewRouter(taskCtrl *TaskController) *Router {
 	router.StrictSlash(false)
 
 	AddTaskRoutes(taskCtrl, router)
+	router.Methods("OPTIONS").HandlerFunc(PreflightTasks)
 
 	return &router
 }
