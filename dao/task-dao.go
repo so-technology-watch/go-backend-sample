@@ -1,7 +1,7 @@
 package dao
 
 import (
-	"go-backend-sample/model"
+	"github.com/so-technology-watch/go-backend-sample/model"
 )
 
 // TaskDAO is the interface for Task

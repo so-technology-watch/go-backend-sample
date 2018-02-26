@@ -3,7 +3,8 @@ package dao
 import (
 	"encoding/json"
 	"errors"
-	"go-backend-sample/model"
+
+	"github.com/so-technology-watch/go-backend-sample/model"
 
 	"github.com/satori/go.uuid"
 	"github.com/sirupsen/logrus"

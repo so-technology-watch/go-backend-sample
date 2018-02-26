@@ -3,9 +3,10 @@ package dao
 import (
 	"database/sql"
 	"errors"
+
 	"github.com/satori/go.uuid"
 	"github.com/sirupsen/logrus"
-	"go-backend-sample/model"
+	"github.com/so-technology-watch/go-backend-sample/model"
 )
 
 var _ TaskDAO = (*TaskDAOSQL)(nil)

@@ -1,11 +1,12 @@
 package web
 
 import (
-	"github.com/sirupsen/logrus"
-	"go-backend-sample/dao"
-	"go-backend-sample/model"
 	"net/http"
 	"time"
+
+	"github.com/sirupsen/logrus"
+	"github.com/so-technology-watch/go-backend-sample/dao"
+	"github.com/so-technology-watch/go-backend-sample/model"
 )
 
 const (

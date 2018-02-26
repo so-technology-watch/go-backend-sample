@@ -1,10 +1,10 @@
 package dao_test
 
 import (
-	"github.com/satori/go.uuid"
-	"go-backend-sample/dao"
-	"go-backend-sample/model"
 	"testing"
+
+	"github.com/so-technology-watch/go-backend-sample/dao"
+	"github.com/so-technology-watch/go-backend-sample/model"
 )
 
 func TestTaskDAOMock(t *testing.T) {

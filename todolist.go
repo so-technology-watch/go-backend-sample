@@ -1,12 +1,13 @@
 package main
 
 import (
-	"go-backend-sample/dao"
-	"go-backend-sample/logger"
-	"go-backend-sample/web"
 	"os"
 	"strconv"
 	"time"
+
+	"github.com/so-technology-watch/go-backend-sample/dao"
+	"github.com/so-technology-watch/go-backend-sample/logger"
+	"github.com/so-technology-watch/go-backend-sample/web"
 
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/negroni"
