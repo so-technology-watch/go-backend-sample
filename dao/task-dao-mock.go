@@ -2,6 +2,7 @@ package dao
 
 import (
 	"errors"
+
 	"github.com/so-technology-watch/go-backend-sample/model"
 
 	"github.com/satori/go.uuid"

@@ -1,14 +1,18 @@
 package web
 
 import (
-	"github.com/gorilla/mux"
 	"net/http"
+
+	"github.com/gorilla/mux"
+	"github.com/sirupsen/logrus"
 )
 
+// Router define the router
 type Router struct {
 	*mux.Router
 }
 
+// Route define a route
 type Route struct {
 	Name        string
 	Method      string
@@ -16,17 +20,21 @@ type Route struct {
 	HandlerFunc http.HandlerFunc
 }
 
+// NewRouter build a router and add routes
 func NewRouter(taskCtrl *TaskController) *Router {
 	router := Router{mux.NewRouter()}
 	router.NotFoundHandler = NotFoundHandler()
 	router.StrictSlash(false)
 
-	AddTaskRoutes(taskCtrl, router)
+	router.Methods(http.MethodOptions).HandlerFunc(preflightTasks)
+
+	addTaskRoutes(taskCtrl, router)
 
 	return &router
 }
 
-func AddTaskRoutes(taskCtrl *TaskController, router Router) {
+// addTaskRoutes add the routes of tasks
+func addTaskRoutes(taskCtrl *TaskController, router Router) {
 	for _, route := range taskCtrl.Routes {
 		router.
 			Methods(route.Method).
@@ -34,4 +42,10 @@ func AddTaskRoutes(taskCtrl *TaskController, router Router) {
 			Name(route.Name).
 			Handler(route.HandlerFunc)
 	}
+}
+
+// preflightTasks handles the preflight requests
+func preflightTasks(w http.ResponseWriter, r *http.Request) {
+	logrus.Println("preflight request handled")
+	SendJSONOk(w, nil)
 }

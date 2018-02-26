@@ -3,6 +3,7 @@ package dao_test
 import (
 	"testing"
 
+	"github.com/satori/go.uuid"
 	"github.com/so-technology-watch/go-backend-sample/dao"
 	"github.com/so-technology-watch/go-backend-sample/model"
 )

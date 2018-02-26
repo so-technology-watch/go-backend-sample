@@ -1,13 +1,12 @@
 package main
 
 import (
-	"os"
-	"strconv"
-	"time"
-
 	"github.com/so-technology-watch/go-backend-sample/dao"
 	"github.com/so-technology-watch/go-backend-sample/logger"
 	"github.com/so-technology-watch/go-backend-sample/web"
+	"os"
+	"strconv"
+	"time"
 
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/negroni"
@@ -19,9 +18,9 @@ var (
 	BuildStmp string
 	GitHash   string
 
-	port         = 8020
+	port         = 8080
 	logLevel     = "warning"
-	db           = 4
+	db           = 0
 	dbConfigFile = ""
 )
 
