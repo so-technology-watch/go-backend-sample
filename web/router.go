@@ -7,6 +7,10 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+const (
+	requestHeaderAccessControlRequestMethod = "Access-Control-Request-Method"
+)
+
 // Router define the router
 type Router struct {
 	*mux.Router
@@ -47,5 +51,9 @@ func addTaskRoutes(taskCtrl *TaskController, router Router) {
 // preflightTasks handles the preflight requests
 func preflightTasks(w http.ResponseWriter, r *http.Request) {
 	logrus.Println("preflight request handled")
-	SendJSONOk(w, nil)
+	if r.Header.Get(requestHeaderAccessControlRequestMethod) == http.MethodDelete || r.Header.Get(requestHeaderAccessControlRequestMethod) == http.MethodPut || r.Header.Get(requestHeaderAccessControlRequestMethod) == http.MethodPost {
+		SendJSONOk(w, nil)
+	} else {
+		SendJSONError(w, "Unsupported method", http.StatusUnauthorized)
+	}
 }
