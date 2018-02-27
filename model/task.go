@@ -24,6 +24,7 @@ type Task struct {
 	ModificationDate time.Time  `json:"modificationDate" bson:"modificationDate"`
 }
 
+// Valid check if task is valid
 func (task Task) Valid() error {
 	if task.Title == "" {
 		return errors.New("title is mandatory")
@@ -34,6 +35,7 @@ func (task Task) Valid() error {
 	return nil
 }
 
+// Equal check if task is equal
 func (t Task) Equal(task Task) bool {
 	return t.Id == task.Id &&
 		t.Title == task.Title &&
