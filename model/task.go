@@ -5,6 +5,7 @@ import (
 	"time"
 )
 
+// TaskStatus type of task status
 type TaskStatus int
 
 const (
@@ -13,6 +14,7 @@ const (
 	StatusDone
 )
 
+// Task structure of a task
 type Task struct {
 	Id               string     `json:"id,omitempty" bson:"id"`
 	Title            string     `json:"title" bson:"title"`
