@@ -26,6 +26,9 @@ func (task Task) Valid() error {
 	if task.Title == "" {
 		return errors.New("title is mandatory")
 	}
+	if task.Description == "" {
+		return errors.New("description is mandatory")
+	}
 	return nil
 }
 
