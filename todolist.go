@@ -1,12 +1,13 @@
 package main
 
 import (
-	"github.com/so-technology-watch/go-backend-sample/dao"
-	"github.com/so-technology-watch/go-backend-sample/logger"
-	"github.com/so-technology-watch/go-backend-sample/web"
 	"os"
 	"strconv"
 	"time"
+
+	"github.com/so-technology-watch/go-backend-sample/dao"
+	"github.com/so-technology-watch/go-backend-sample/logger"
+	"github.com/so-technology-watch/go-backend-sample/web"
 
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/negroni"
@@ -82,6 +83,7 @@ func main() {
 		webServer.Use(recovery)
 
 		// add middleware n.Use()
+
 		taskCtrl := web.NewTaskController(taskDAO)
 		router := web.NewRouter(taskCtrl)
 

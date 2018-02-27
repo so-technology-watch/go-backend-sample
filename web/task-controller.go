@@ -155,7 +155,7 @@ func (ctrl *TaskController) UpdateTask(w http.ResponseWriter, r *http.Request) {
 		SendJSONError(w, err.Error(), http.StatusNotFound)
 		return
 	} else if taskExist == false {
-		SendJSONError(w, "task not found", http.StatusNotFound)
+		SendJSONNotFound(w)
 		return
 	}
 
