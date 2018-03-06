@@ -1,0 +1,20 @@
+# todolist micro-service on mongo
+todolist-mongo:
+  container_name: todolist-mongo
+  image: xavmarc/todolist:latest
+  restart: always
+  environment:
+    - URL_DB=${URL_DB}
+  links:
+    - mongo
+  ports:
+    - "8020:8020"
+  command: -p 8020 -l info -d 1
+
+# bdd mongo
+mongo:
+  container_name: todolist-mongo-db
+  image: mongo:latest
+  restart: always
+  ports:
+    - "27017:27017"

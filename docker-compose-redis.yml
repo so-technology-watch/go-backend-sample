@@ -1,0 +1,20 @@
+# todolist micro-service redis
+todolist-redis:
+  container_name: todolist-redis
+  image: xavmarc/todolist:latest
+  restart: always
+  environment:
+    - URL_DB=${URL_DB}
+  links:
+    - redis
+  ports:
+    - "8020:8020"
+  command: -p 8020 -l info -d 0
+
+# bdd redis
+redis:
+  container_name: todolist-redis-db
+  image: redis:latest
+  restart: always
+  ports:
+    - "6379:6379"

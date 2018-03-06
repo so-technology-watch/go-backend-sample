@@ -5,7 +5,6 @@ import (
 	"time"
 )
 
-// TaskStatus type of task status
 type TaskStatus int
 
 const (
@@ -14,7 +13,6 @@ const (
 	StatusDone
 )
 
-// Task structure of a task
 type Task struct {
 	Id               string     `json:"id,omitempty" bson:"id"`
 	Title            string     `json:"title" bson:"title"`
@@ -24,18 +22,13 @@ type Task struct {
 	ModificationDate time.Time  `json:"modificationDate" bson:"modificationDate"`
 }
 
-// Valid check if task is valid
 func (task Task) Valid() error {
 	if task.Title == "" {
 		return errors.New("title is mandatory")
 	}
-	if task.Description == "" {
-		return errors.New("description is mandatory")
-	}
 	return nil
 }
 
-// Equal check if task is equal
 func (t Task) Equal(task Task) bool {
 	return t.Id == task.Id &&
 		t.Title == task.Title &&

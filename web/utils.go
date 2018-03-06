@@ -2,16 +2,13 @@ package web
 
 import (
 	"encoding/json"
-	"net/http"
-
 	"github.com/gorilla/mux"
+	"net/http"
 )
 
 const (
-	responseHeaderContentTypeKey            = "Content-Type"
-	responseHeaderContentTypeJSONUTF8       = "application/json; charset=UTF-8"
-	responseHeaderAccessControlAllowOrigin  = "Access-Control-Allow-Origin"
-	responseHeaderAccessControlAllowMethods = "Access-Control-Allow-Methods"
+	ResponseHeaderContentTypeKey      = "Content-Type"
+	ResponseHeaderContentTypeJSONUTF8 = "application/json; charset=UTF-8"
 
 	resourceNotFound = "Resource not found"
 	errorMsg         = "Error"
@@ -19,9 +16,7 @@ const (
 
 // SendJSONWithHTTPCode outputs JSON with an HTTP code
 func SendJSONWithHTTPCode(w http.ResponseWriter, d interface{}, code int) {
-	w.Header().Set(responseHeaderContentTypeKey, responseHeaderContentTypeJSONUTF8)
-	w.Header().Set(responseHeaderAccessControlAllowOrigin, "*")
-	w.Header().Set(responseHeaderAccessControlAllowMethods, "GET, POST, PUT, DELETE, OPTIONS")
+	w.Header().Set(ResponseHeaderContentTypeKey, ResponseHeaderContentTypeJSONUTF8)
 	w.WriteHeader(code)
 	if d != nil {
 		err := json.NewEncoder(w).Encode(d)

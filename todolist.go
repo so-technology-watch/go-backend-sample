@@ -5,13 +5,12 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/so-technology-watch/go-backend-sample/dao"
-	"github.com/so-technology-watch/go-backend-sample/logger"
-	"github.com/so-technology-watch/go-backend-sample/web"
+	"go-backend-sample/dao"
+	"go-backend-sample/logger"
+	"go-backend-sample/web"
 
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/negroni"
-	"gopkg.in/urfave/cli.v1"
 )
 
 var (
@@ -19,9 +18,9 @@ var (
 	BuildStmp string
 	GitHash   string
 
-	port         = 8080
+	port         = 8020
 	logLevel     = "warning"
-	db           = 0
+	db           = 4
 	dbConfigFile = ""
 )
 
@@ -83,7 +82,6 @@ func main() {
 		webServer.Use(recovery)
 
 		// add middleware n.Use()
-
 		taskCtrl := web.NewTaskController(taskDAO)
 		router := web.NewRouter(taskCtrl)
 
