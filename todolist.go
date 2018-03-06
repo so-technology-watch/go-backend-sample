@@ -11,6 +11,7 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/negroni"
+	"gopkg.in/urfave/cli.v1"
 )
 
 var (

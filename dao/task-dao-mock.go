@@ -3,6 +3,7 @@ package dao
 import (
 	"errors"
 	"go-backend-sample/model"
+	"github.com/satori/go.uuid"
 )
 
 var _ TaskDAO = (*TaskDAOMock)(nil)
